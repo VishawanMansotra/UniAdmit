@@ -11,6 +11,11 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from pathlib import Path
+import os
+import dj_database_url
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,12 +25,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-b2vd51*l6kdsnua4n02&#$z__3ldw6k(w_tul$p@ei0r$l=s2&'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-b2vd51*l6kdsnua4n02&#$z__3ldw6k(w_tul$p@ei0r$l=s2&')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(',')
+
+CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', 'https://*.railway.app').split(',')
 
 
 # Application definition
@@ -42,6 +49,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -70,18 +78,12 @@ TEMPLATES = [
 WSGI_APPLICATION = 'admission.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/6.0/ref/settings/#databases
-
+# Database configuration using dj-database-url for Railway
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'admission_db',
-        'USER': 'root',
-        'PASSWORD': 'vasu@123',
-        'HOST': 'localhost',
-        'PORT': '3306',
-    }
+    'default': dj_database_url.config(
+        default=os.environ.get('DATABASE_URL', 'mysql://root:vasu@123@localhost:3306/admission_db'),
+        conn_max_age=600,
+    )
 }
 
 
@@ -117,18 +119,26 @@ USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/6.0/howto/static-files/
-
-STATIC_URL = 'static/'
-import os
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# WhiteNoise storage optimization
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # ── Razorpay Payment Gateway ──────────────────────────────────────────────────
-RAZORPAY_KEY_ID = 'rzp_test_SivKqG4x1r14re'
-RAZORPAY_KEY_SECRET = '0E8pSO3Byy7ppopO90s3hjRa'
+RAZORPAY_KEY_ID = os.environ.get('RAZORPAY_KEY_ID', 'rzp_test_SivKqG4x1r14re')
+RAZORPAY_KEY_SECRET = os.environ.get('RAZORPAY_KEY_SECRET', '0E8pSO3Byy7ppopO90s3hjRa')
 PAYMENT_AMOUNT = 50000  # paise = ₹500
 
 # ── Email (SMTP via Gmail) ────────────────────────────────────────────────────
@@ -136,8 +146,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'vishvan.mansotra@gmail.com'          # ← fill in your Gmail address
-EMAIL_HOST_PASSWORD = 'nfst baep xpuy trjc'      # ← fill in your Gmail App Password (not your Gmail password)
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'vishvan.mansotra@gmail.com')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', 'nfst baep xpuy trjc')
 DEFAULT_FROM_EMAIL = 'UniAdmit UIET Jammu <noreply@uiet.ac.in>'
 
 # Token expiry: Django's PasswordResetTokenGenerator uses PASSWORD_RESET_TIMEOUT
