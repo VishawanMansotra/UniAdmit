@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard - University Admission System{% endblock %}
+{% block content %}
+<div class="container my-5">
+
+    <!-- Welcome Banner -->
+    <div class="alert alert-primary d-flex align-items-center mb-4" style="border-left: 5px solid #1a237e;">
+        <i class="fas fa-user-circle fa-2x me-3"></i>
+        <div>
+            <h4 class="mb-0">Welcome, {{ request.user.first_name }} {{ request.user.last_name }}!</h4>
+            <small>{{ request.user.email }}</small>
+        </div>
+    </div>
+
+    <!-- Feature 3: Status Notification Banners -->
+    {% for app in applications %}
+        {% if app.status == 'Approved' %}
+        <div class="alert alert-dismissible fade show mb-3"
+             style="background: linear-gradient(135deg, #1b5e20, #2e7d32); color:white; border-radius:12px; border-left:5px solid #00e676;">
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+            <div class="d-flex align-items-start">
+                <i class="fas fa-check-circle fa-2x me-3 mt-1"></i>
+                <div>
+                    <h6 class="mb-1 fw-bold">🎉 Congratulations! Application Approved</h6>
+                    <p class="mb-0">
+                        Your application for
+                        <strong>{{ app.get_preference1_display }}</strong>
+                        has been <strong>Approved</strong> by the admin.
+                    </p>
+                    {% if app.remarks %}
+                    <small class="opacity-75 d-block mt-1">
+                        <i class="fas fa-comment me-1"></i>Admin Remarks: {{ app.remarks }}
+                    </small>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% elif app.status == 'Rejected' %}
+        <div class="alert alert-dismissible fade show mb-3"
+             style="background: linear-gradient(135deg, #b71c1c, #c62828); color:white; border-radius:12px; border-left:5px solid #ff1744;">
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+            <div class="d-flex align-items-start">
+                <i class="fas fa-times-circle fa-2x me-3 mt-1"></i>
+                <div>
+                    <h6 class="mb-1 fw-bold">Application Status Update</h6>
+                    <p class="mb-0">
+                        Your application for
+                        <strong>{{ app.get_preference1_display }}</strong>
+                        has been <strong>Rejected</strong>.
+                    </p>
+                    {% if app.remarks %}
+                    <small class="opacity-75 d-block mt-1">
+                        <i class="fas fa-comment me-1"></i>Reason: {{ app.remarks }}
+                    </small>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    {% endfor %}
+
+    <!-- Stats Row -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="stat-card stat-card-blue">
+                <i class="fas fa-file-alt fa-2x mb-2 opacity-75"></i>
+                <h2>{{ applications_count|default:"0" }}</h2>
+                <h6>Total Applications</h6>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card stat-card-orange">
+                <i class="fas fa-clock fa-2x mb-2 opacity-75"></i>
+                <h2>{{ pending_count|default:"0" }}</h2>
+                <h6>Pending Review</h6>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card stat-card-green">
+                <i class="fas fa-check-circle fa-2x mb-2 opacity-75"></i>
+                <h2>{{ approved_count|default:"0" }}</h2>
+                <h6>Approved</h6>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <a href="/apply/" class="btn btn-outline-primary w-100 py-3">
+                        <i class="fas fa-file-alt fa-2x d-block mb-2"></i>
+                        Apply for Admission
+                    </a>
+                </div>
+                <div class="col-md-4">
+                    <a href="/my-applications/" class="btn btn-outline-warning w-100 py-3">
+                        <i class="fas fa-list fa-2x d-block mb-2"></i>
+                        View My Applications
+                    </a>
+                </div>
+                <div class="col-md-4">
+                    <a href="/profile/" class="btn btn-outline-success w-100 py-3">
+                        <i class="fas fa-user-edit fa-2x d-block mb-2"></i>
+                        Edit My Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Summary -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-secondary text-white">
+            <h5 class="mb-0"><i class="fas fa-id-card me-2"></i>My Profile Summary</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3 text-center">
+                    {% if student.photo %}
+                        <img src="{{ student.photo.url }}" class="rounded-circle img-fluid mb-2"
+                             style="width:120px; height:120px; object-fit:cover; border:4px solid #e8eeff;">
+                    {% else %}
+                        <i class="fas fa-user-circle fa-5x text-secondary"></i>
+                    {% endif %}
+                </div>
+                <div class="col-md-9">
+                    <table class="table table-borderless">
+                        <tr>
+                            <td><strong>Full Name:</strong></td>
+                            <td>{{ request.user.first_name }} {{ request.user.last_name }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Email:</strong></td>
+                            <td>{{ request.user.email }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Phone:</strong></td>
+                            <td>{{ student.phone }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Date of Birth:</strong></td>
+                            <td>{{ student.date_of_birth }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Address:</strong></td>
+                            <td>{{ student.address }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

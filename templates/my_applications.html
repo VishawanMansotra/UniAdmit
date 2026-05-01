@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% block title %}My Applications{% endblock %}
+{% block content %}
+<div class="container my-5">
+
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+        <h3 class="text-primary fw-bold mb-0">
+            <i class="fas fa-list me-2"></i>My Applications
+        </h3>
+        {% if not applications %}
+        <a href="/apply/" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Apply Now
+        </a>
+        {% endif %}
+    </div>
+
+    {% if applications %}
+    <div class="card shadow">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Preference 1</th>
+                            <th>Preference 2</th>
+                            <th>Applied On</th>
+                            <th>Status</th>
+                            <th>Payment</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for app in applications %}
+                        <tr>
+                            <td class="fw-bold">{{ forloop.counter }}</td>
+                            <td>
+                                <span class="badge" style="background:linear-gradient(135deg,#1a237e,#1565c0);font-size:0.82rem;">
+                                    {% if app.preference1 == 'CSE' %}B.Tech CSE
+                                    {% elif app.preference1 == 'CIVIL' %}B.Tech Civil
+                                    {% else %}{{ app.preference1 }}{% endif %}
+                                </span>
+                            </td>
+                            <td>
+                                {% if app.preference2 == 'CSE' %}B.Tech CSE
+                                {% elif app.preference2 == 'CIVIL' %}B.Tech Civil
+                                {% else %}{{ app.preference2 }}{% endif %}
+                            </td>
+                            <td>{{ app.applied_at|date:"d M Y" }}</td>
+                            <td>
+                                {% if app.status == 'Pending' %}
+                                    <span class="badge bg-warning text-dark">⏳ Pending</span>
+                                {% elif app.status == 'Approved' %}
+                                    <span class="badge bg-success">✅ Approved</span>
+                                {% else %}
+                                    <span class="badge bg-danger">❌ Rejected</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="d-flex flex-column gap-1">
+                                    <a href="/download-pdf/{{ app.id }}/"
+                                       class="btn btn-sm btn-success">
+                                        <i class="fas fa-file-pdf me-1"></i>Download PDF
+                                    </a>
+                                    {% if app.payment and app.payment.status == 'paid' %}
+                                        <a href="{% url 'acknowledgment_pdf' %}"
+                                           class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-file-download me-1"></i>Acknowledgment
+                                        </a>
+                                    {% elif app.payment and app.payment.status == 'failed' %}
+                                        <a href="{% url 'initiate_payment' %}"
+                                           class="btn btn-sm btn-outline-danger">
+                                            <i class="fas fa-redo me-1"></i>Retry Payment
+                                        </a>
+                                    {% else %}
+                                        <a href="{% url 'initiate_payment' %}"
+                                           class="btn btn-sm fw-semibold text-white"
+                                           style="background:linear-gradient(135deg,#1a237e,#1565c0);border:none;border-radius:6px;">
+                                            <i class="fas fa-credit-card me-1"></i>Pay Fee ₹500
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <!-- Payment Status Cell -->
+                            <td>
+                                {% if app.payment and app.payment.status == 'paid' %}
+                                    <span class="badge bg-success px-2 py-1" style="border-radius:8px;">
+                                        <i class="fas fa-check me-1"></i>Fee Paid ✓
+                                    </span>
+                                {% elif app.payment and app.payment.status == 'failed' %}
+                                    <span class="badge bg-danger px-2 py-1" style="border-radius:8px;">
+                                        <i class="fas fa-times me-1"></i>Failed
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark px-2 py-1" style="border-radius:8px;">
+                                        <i class="fas fa-clock me-1"></i>Pending
+                                    </span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <!-- Feature 3: Remarks row (shown only if remarks exist) -->
+                        {% if app.remarks and app.status != 'Pending' %}
+                        <tr>
+                            <td colspan="7">
+                                <div class="px-2 py-2 rounded
+                                     {% if app.status == 'Approved' %}remarks-approved{% else %}remarks-rejected{% endif %}">
+                                    <small>
+                                        <i class="fas fa-comment-dots me-1
+                                           {% if app.status == 'Approved' %}text-success{% else %}text-danger{% endif %}"></i>
+                                        <strong>Admin Remarks:</strong> {{ app.remarks }}
+                                    </small>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-file-alt fa-4x text-muted mb-4 opacity-50"></i>
+        <h5 class="text-muted">No applications submitted yet</h5>
+        <p class="text-muted">Start your admission journey by applying for a program.</p>
+        <a href="/apply/" class="btn btn-primary px-5">
+            <i class="fas fa-rocket me-2"></i>Apply Now
+        </a>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

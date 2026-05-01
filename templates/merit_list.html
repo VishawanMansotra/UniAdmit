@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% block title %}Merit List — UIET{% endblock %}
+{% block content %}
+<div class="container my-5">
+
+    <!-- Header -->
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+        <div>
+            <h3 class="fw-bold text-primary mb-1">
+                <i class="fas fa-trophy me-2"></i>Merit List — Approved Candidates
+            </h3>
+            <small class="text-muted">Ranked by academic performance (Physics → Chemistry → Math)</small>
+        </div>
+        {% if request.user.is_staff %}
+        <a href="/download-merit-pdf/?course={{ course_filter }}"
+           class="btn btn-success">
+            <i class="fas fa-file-pdf me-2"></i>Download PDF
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- Feature 5: Course Filter Buttons -->
+    <div class="card shadow mb-4">
+        <div class="card-body py-3">
+            <div class="d-flex flex-wrap gap-2 align-items-center">
+                <span class="text-muted me-2 fw-semibold">
+                    <i class="fas fa-filter me-1"></i>Filter by Course:
+                </span>
+                <a href="/merit-list/"
+                   class="btn btn-sm {% if course_filter == 'all' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                    <i class="fas fa-th-list me-1"></i>All Courses
+                </a>
+                {% for code, name in course_list %}
+                <a href="/merit-list/?course={{ code }}"
+                   class="btn btn-sm {% if course_filter == code %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                    {% if code == 'CSE' %}<i class="fas fa-laptop-code me-1"></i>
+                    {% elif code == 'CIVIL' %}<i class="fas fa-hard-hat me-1"></i>
+                    {% else %}<i class="fas fa-graduation-cap me-1"></i>{% endif %}
+                    {{ code }}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Filter Label -->
+    {% if course_filter != 'all' %}
+    <div class="alert py-2 mb-4"
+         style="background:#e8eeff; border-left:4px solid #1a237e; border-radius:8px;">
+        <i class="fas fa-filter me-2 text-primary"></i>
+        Showing: <strong>{{ courses_dict }}</strong>
+        {% for code, name in course_list %}{% if code == course_filter %}<strong>{{ name }}</strong>{% endif %}{% endfor %}
+        — <a href="/merit-list/" class="text-primary">Clear filter</a>
+    </div>
+    {% endif %}
+
+    <!-- Merit Table -->
+    <div class="card shadow">
+        <div class="card-header text-white py-3"
+             style="background: linear-gradient(135deg, #0d1642, #1a237e);">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-list-ol me-2"></i>Ranked Candidates</h5>
+                <span class="badge bg-light text-dark fs-6">
+                    Total: {{ applications|length }}
+                </span>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            {% if applications %}
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th style="width:60px;">Rank</th>
+                            <th>Student Name</th>
+                            <th>Category</th>
+                            <th>Program (Pref. 1)</th>
+                            <th>Physics</th>
+                            <th>Chemistry</th>
+                            <th>Math</th>
+                            <th>Total</th>
+                            <th>%</th>
+                            <th>JEE Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for app in applications %}
+                        <tr {% if forloop.counter <= 3 %}style="font-weight:600;"{% endif %}>
+                            <td>
+                                {% if forloop.counter == 1 %}
+                                    <span class="badge fs-6" style="background:#f59e0b;">🥇 1</span>
+                                {% elif forloop.counter == 2 %}
+                                    <span class="badge bg-secondary fs-6">🥈 2</span>
+                                {% elif forloop.counter == 3 %}
+                                    <span class="badge fs-6" style="background:#cd7f32;">🥉 3</span>
+                                {% else %}
+                                    <span class="text-muted fw-bold">{{ forloop.counter }}</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ app.student.get_full_name }}</td>
+                            <td>
+                                <span class="badge bg-light text-dark border">{{ app.category }}</span>
+                            </td>
+                            <td>
+                                {% for code, name in course_list %}
+                                    {% if code == app.preference1 %}{{ name }}{% endif %}
+                                {% empty %}
+                                    {{ app.preference1 }}
+                                {% endfor %}
+                            </td>
+                            <td>{{ app.physics_marks }}</td>
+                            <td>{{ app.chemistry_marks }}</td>
+                            <td>{{ app.math_marks }}</td>
+                            <td class="fw-bold text-primary">{{ app.total_marks }}</td>
+                            <td>
+                                <span class="badge {% if app.percentage >= 75 %}bg-success{% elif app.percentage >= 60 %}bg-warning text-dark{% else %}bg-danger{% endif %}">
+                                    {{ app.percentage }}%
+                                </span>
+                            </td>
+                            <td>{{ app.jee_score|default:"N/A" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-trophy fa-3x text-muted mb-3 opacity-50"></i>
+                <h5 class="text-muted">No approved applications found</h5>
+                {% if course_filter != 'all' %}
+                <p class="text-muted">No approved applicants for the selected course filter.</p>
+                <a href="/merit-list/" class="btn btn-outline-primary">
+                    <i class="fas fa-list me-1"></i>View All Courses
+                </a>
+                {% else %}
+                <p class="text-muted">Approve some applications to see the merit list here.</p>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

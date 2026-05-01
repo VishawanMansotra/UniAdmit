@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% block title %}Edit Profile — UniAdmit{% endblock %}
+{% block content %}
+<div class="container my-5" style="max-width: 760px;">
+
+    <!-- Page Header -->
+    <div class="d-flex align-items-center mb-4">
+        <a href="/dashboard/" class="btn btn-outline-secondary me-3">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <div>
+            <h3 class="mb-0 text-primary fw-bold">
+                <i class="fas fa-user-edit me-2"></i>Edit My Profile
+            </h3>
+            <small class="text-muted">Update your personal information</small>
+        </div>
+    </div>
+
+    <div class="card shadow">
+        <!-- Card Header -->
+        <div class="card-header text-white py-3"
+             style="background: linear-gradient(135deg, #0d1642, #1a237e);">
+            <div class="d-flex align-items-center">
+                <div class="me-3">
+                    {% if student.photo %}
+                        <img src="{{ student.photo.url }}"
+                             class="rounded-circle"
+                             style="width:55px; height:55px; object-fit:cover; border:3px solid rgba(255,255,255,0.3);">
+                    {% else %}
+                        <div class="rounded-circle d-flex align-items-center justify-content-center"
+                             style="width:55px; height:55px; background:rgba(255,255,255,0.15); border:3px solid rgba(255,255,255,0.3);">
+                            <i class="fas fa-user fa-lg"></i>
+                        </div>
+                    {% endif %}
+                </div>
+                <div>
+                    <h6 class="mb-0 fw-bold">{{ request.user.first_name }} {{ request.user.last_name }}</h6>
+                    <small class="opacity-75">{{ request.user.email }}</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body p-4">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <!-- Name Row -->
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-user me-1 text-primary"></i>First Name
+                        </label>
+                        {{ form.first_name }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-user me-1 text-primary"></i>Last Name
+                        </label>
+                        {{ form.last_name }}
+                    </div>
+                </div>
+
+                <!-- Phone & DOB -->
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-phone me-1 text-primary"></i>Phone Number
+                        </label>
+                        {{ form.phone }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-calendar-alt me-1 text-primary"></i>Date of Birth
+                        </label>
+                        {{ form.date_of_birth }}
+                    </div>
+                </div>
+
+                <!-- Address -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">
+                        <i class="fas fa-map-marker-alt me-1 text-primary"></i>Address
+                    </label>
+                    {{ form.address }}
+                </div>
+
+                <!-- Photo -->
+                <div class="mb-4">
+                    <label class="form-label fw-semibold">
+                        <i class="fas fa-camera me-1 text-primary"></i>Profile Photo
+                        <small class="text-muted fw-normal">(optional — leave blank to keep current)</small>
+                    </label>
+                    {{ form.photo }}
+                </div>
+
+                <!-- Email (read-only) -->
+                <div class="mb-4">
+                    <label class="form-label fw-semibold">
+                        <i class="fas fa-envelope me-1 text-primary"></i>Email Address
+                        <small class="text-muted fw-normal">(cannot be changed)</small>
+                    </label>
+                    <input type="email" class="form-control" value="{{ request.user.email }}" disabled>
+                </div>
+
+                <hr class="opacity-25">
+
+                <div class="d-flex gap-3">
+                    <button type="submit" class="btn btn-primary px-5">
+                        <i class="fas fa-save me-2"></i>Save Changes
+                    </button>
+                    <a href="/dashboard/" class="btn btn-outline-secondary px-4">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

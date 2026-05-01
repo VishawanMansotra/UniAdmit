@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% block title %}Pay Application Fee - UniAdmit{% endblock %}
+
+{% block content %}
+<div class="container my-5" style="max-width: 680px;">
+
+    <!-- Page Header -->
+    <div class="text-center mb-4">
+        <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3"
+             style="width:72px;height:72px;background:linear-gradient(135deg,#1a237e,#1565c0);">
+            <i class="fas fa-credit-card fa-2x text-white"></i>
+        </div>
+        <h2 class="fw-bold" style="color:#1a237e;">Application Fee Payment</h2>
+        <p class="text-muted">Secure payment powered by Razorpay</p>
+    </div>
+
+    <!-- Fee Summary Card -->
+    <div class="card shadow mb-4" style="border-radius:12px;border:none;">
+        <div class="card-header text-white py-3" style="background:linear-gradient(135deg,#1a237e,#1565c0);border-radius:12px 12px 0 0;">
+            <h5 class="mb-0"><i class="fas fa-receipt me-2"></i>Fee Summary</h5>
+        </div>
+        <div class="card-body p-4">
+            <table class="table table-borderless mb-0">
+                <tr>
+                    <td class="fw-semibold text-muted" style="width:45%;">Student Name</td>
+                    <td class="fw-bold" style="color:#1a237e;">{{ student.user.get_full_name }}</td>
+                </tr>
+                <tr>
+                    <td class="fw-semibold text-muted">Email</td>
+                    <td>{{ student.user.email }}</td>
+                </tr>
+                <tr>
+                    <td class="fw-semibold text-muted">Course Applied (Pref. 1)</td>
+                    <td>{{ application.get_preference1_display }}</td>
+                </tr>
+                <tr>
+                    <td class="fw-semibold text-muted">Order ID</td>
+                    <td><code>{{ order.id }}</code></td>
+                </tr>
+                <tr class="table-active">
+                    <td class="fw-bold fs-5" style="color:#1a237e;">Application Fee</td>
+                    <td class="fw-bold fs-5" style="color:#1a237e;">₹500.00</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- Payment Info -->
+    <div class="alert d-flex align-items-center mb-4"
+         style="background:#e8eeff;border-left:5px solid #1565c0;border-radius:12px;">
+        <i class="fas fa-shield-alt me-3" style="color:#1565c0;font-size:1.5rem;"></i>
+        <div>
+            <strong style="color:#1a237e;">Secure Payment</strong><br>
+            <small class="text-muted">Your payment is processed securely by Razorpay. We never store your card details.</small>
+        </div>
+    </div>
+
+    <!-- Pay Now Button -->
+    <div class="d-grid">
+        <button id="rzp-pay-btn"
+                class="btn btn-lg py-3 fw-bold text-white"
+                style="background:linear-gradient(135deg,#1a237e,#1565c0);border-radius:12px;border:none;
+                       box-shadow:0 4px 15px rgba(21,101,192,0.4);transition:all 0.3s ease;">
+            <i class="fas fa-lock me-2"></i>Pay ₹500 Securely
+        </button>
+    </div>
+
+    <p class="text-center text-muted mt-3" style="font-size:0.85rem;">
+        <i class="fas fa-info-circle me-1"></i>
+        You will be redirected to your application page after a successful payment.
+    </p>
+</div>
+
+<!-- Hidden form to POST payment data to verify_payment -->
+<form id="payment-success-form" action="{% url 'verify_payment' %}" method="POST" style="display:none;">
+    {% csrf_token %}
+    <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id">
+    <input type="hidden" name="razorpay_order_id" id="razorpay_order_id">
+    <input type="hidden" name="razorpay_signature" id="razorpay_signature">
+</form>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+    var options = {
+        "key": "{{ razorpay_key }}",
+        "amount": "{{ amount }}",
+        "currency": "INR",
+        "name": "UniAdmit — University Admission",
+        "description": "Application Fee Payment",
+        "image": "",
+        "order_id": "{{ order.id }}",
+        "handler": function (response) {
+            document.getElementById('razorpay_payment_id').value = response.razorpay_payment_id;
+            document.getElementById('razorpay_order_id').value = response.razorpay_order_id;
+            document.getElementById('razorpay_signature').value = response.razorpay_signature;
+            document.getElementById('payment-success-form').submit();
+        },
+        "prefill": {
+            "name": "{{ student.user.get_full_name }}",
+            "email": "{{ student.user.email }}",
+            "contact": "{{ student.phone }}"
+        },
+        "theme": {
+            "color": "#1a237e"
+        },
+        "modal": {
+            "ondismiss": function() {
+                console.log("Payment modal closed by user.");
+            }
+        }
+    };
+
+    var rzp = new Razorpay(options);
+    document.getElementById('rzp-pay-btn').addEventListener('click', function(e) {
+        e.preventDefault();
+        rzp.open();
+    });
+
+    // Hover effect
+    var btn = document.getElementById('rzp-pay-btn');
+    btn.addEventListener('mouseenter', function() {
+        this.style.transform = 'translateY(-2px)';
+        this.style.boxShadow = '0 8px 25px rgba(21,101,192,0.5)';
+    });
+    btn.addEventListener('mouseleave', function() {
+        this.style.transform = 'translateY(0)';
+        this.style.boxShadow = '0 4px 15px rgba(21,101,192,0.4)';
+    });
+</script>
+{% endblock %}

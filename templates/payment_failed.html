@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}Payment Failed - UniAdmit{% endblock %}
+
+{% block content %}
+<div class="container my-5 text-center" style="max-width: 560px;">
+
+    <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-4"
+         style="width:90px;height:90px;background:linear-gradient(135deg,#b71c1c,#c62828);
+                box-shadow:0 0 0 12px rgba(198,40,40,0.15);">
+        <i class="fas fa-times-circle fa-3x text-white"></i>
+    </div>
+
+    <h2 class="fw-bold text-danger">Payment Failed</h2>
+    <p class="text-muted mb-4">
+        Your payment could not be verified. This can happen if the session expired or
+        the payment was cancelled. Please try again.
+    </p>
+
+    <div class="d-grid gap-3" style="max-width:320px;margin:0 auto;">
+        <a href="{% url 'initiate_payment' %}"
+           class="btn btn-lg fw-bold text-white"
+           style="background:linear-gradient(135deg,#1a237e,#1565c0);border-radius:12px;border:none;
+                  box-shadow:0 4px 15px rgba(21,101,192,0.35);">
+            <i class="fas fa-redo me-2"></i>Retry Payment
+        </a>
+        <a href="{% url 'dashboard' %}"
+           class="btn btn-lg btn-outline-secondary fw-semibold"
+           style="border-radius:12px;">
+            <i class="fas fa-home me-2"></i>Back to Dashboard
+        </a>
+    </div>
+</div>
+{% endblock %}

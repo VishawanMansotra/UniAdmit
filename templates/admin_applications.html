@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+{% block title %}All Applications - Admin{% endblock %}
+{% block content %}
+<div class="container my-5">
+
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+        <h3 class="mb-0 text-primary fw-bold">
+            <i class="fas fa-list me-2"></i>All Applications
+        </h3>
+        <!-- Feature 2: CSV Export Button -->
+        <a href="/admin-export-csv/?status={{ status_filter }}"
+           class="btn btn-success">
+            <i class="fas fa-file-csv me-2"></i>Export CSV
+        </a>
+    </div>
+
+    <!-- Filter Buttons -->
+    <div class="d-flex flex-wrap gap-2 mb-3">
+        <a href="/admin-applications/?q={{ search_query }}"
+           class="btn btn-sm {% if status_filter == 'all' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+            All
+        </a>
+        <a href="/admin-applications/?status=Pending&q={{ search_query }}"
+           class="btn btn-sm {% if status_filter == 'Pending' %}btn-warning{% else %}btn-outline-warning{% endif %}">
+            ⏳ Pending
+        </a>
+        <a href="/admin-applications/?status=Approved&q={{ search_query }}"
+           class="btn btn-sm {% if status_filter == 'Approved' %}btn-success{% else %}btn-outline-success{% endif %}">
+            ✅ Approved
+        </a>
+        <a href="/admin-applications/?status=Rejected&q={{ search_query }}"
+           class="btn btn-sm {% if status_filter == 'Rejected' %}btn-danger{% else %}btn-outline-danger{% endif %}">
+            ❌ Rejected
+        </a>
+    </div>
+
+    <!-- Feature 4: Search Box -->
+    <div class="card shadow mb-4">
+        <div class="card-body py-3">
+            <form method="GET" action="/admin-applications/" class="d-flex gap-2">
+                {% if status_filter != 'all' %}
+                <input type="hidden" name="status" value="{{ status_filter }}">
+                {% endif %}
+                <input type="text" name="q" value="{{ search_query }}"
+                       class="form-control"
+                       placeholder="🔍  Search by student name or email...">
+                <button type="submit" class="btn btn-primary px-4">
+                    <i class="fas fa-search me-1"></i> Search
+                </button>
+                {% if search_query %}
+                <a href="/admin-applications/?status={{ status_filter }}"
+                   class="btn btn-outline-secondary">
+                    <i class="fas fa-times"></i>
+                </a>
+                {% endif %}
+            </form>
+            {% if search_query %}
+            <small class="text-muted mt-2 d-block">
+                <i class="fas fa-info-circle me-1"></i>
+                Showing results for "<strong>{{ search_query }}</strong>" — {{ applications|length }} found
+            </small>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Applications Table -->
+    <div class="card shadow">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered mb-0">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Student Name</th>
+                            <th>Email</th>
+                            <th>Preference 1</th>
+                            <th>Preference 2</th>
+                            <th>Category</th>
+                            <th>Applied On</th>
+                            <th>Status</th>
+                            <th>Payment</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for app in applications %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td class="fw-semibold">{{ app.student.get_full_name }}</td>
+                            <td><small>{{ app.student.email }}</small></td>
+                            <td>{{ app.get_preference1_display }}</td>
+                            <td>{{ app.get_preference2_display }}</td>
+                            <td>
+                                <span class="badge bg-light text-dark border">{{ app.category }}</span>
+                            </td>
+                            <td>{{ app.applied_at|date:"d M Y" }}</td>
+                            <td>
+                                {% if app.status == 'Pending' %}
+                                    <span class="badge bg-warning text-dark">⏳ Pending</span>
+                                {% elif app.status == 'Approved' %}
+                                    <span class="badge bg-success">✅ Approved</span>
+                                {% else %}
+                                    <span class="badge bg-danger">❌ Rejected</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if app.payment %}
+                                    {% if app.payment.status == 'paid' %}
+                                        <span class="badge bg-success px-2 py-1" style="border-radius:8px;">✅ Paid</span>
+                                    {% elif app.payment.status == 'failed' %}
+                                        <span class="badge bg-danger px-2 py-1" style="border-radius:8px;">❌ Failed</span>
+                                    {% else %}
+                                        <span class="badge bg-warning text-dark px-2 py-1" style="border-radius:8px;">⏳ Pending</span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="badge bg-secondary px-2 py-1" style="border-radius:8px;">Not Initiated</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="/admin-applications/{{ app.id }}/"
+                                   class="btn btn-sm btn-primary">
+                                    <i class="fas fa-eye"></i> Review
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="10" class="text-center py-4 text-muted">
+                                <i class="fas fa-search me-2"></i>
+                                No applications found{% if search_query %} for "{{ search_query }}"{% endif %}.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

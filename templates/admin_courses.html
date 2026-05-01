@@ -1,0 +1,204 @@
+{% extends 'base.html' %}
+{% block title %}Course Management — Admin{% endblock %}
+{% block content %}
+<div class="container my-5">
+
+    <!-- Header -->
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+        <div class="d-flex align-items-center">
+            <a href="/admin-dashboard/" class="btn btn-outline-secondary me-3">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <div>
+                <h3 class="mb-0 fw-bold text-primary">
+                    <i class="fas fa-chalkboard-teacher me-2"></i>Course Management
+                </h3>
+                <small class="text-muted">Add, edit and activate/deactivate programs</small>
+            </div>
+        </div>
+        <button class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#addCourseForm">
+            <i class="fas fa-plus me-2"></i>Add New Course
+        </button>
+    </div>
+
+    <!-- Edit Course Banner (shown when ?edit=id) -->
+    {% if edit_course %}
+    <div class="card shadow mb-4" style="border-left: 5px solid #1565c0;">
+        <div class="card-header text-white" style="background: linear-gradient(135deg, #0d1642, #1565c0);">
+            <h5 class="mb-0">
+                <i class="fas fa-edit me-2"></i>Editing: {{ edit_course.code }} — {{ edit_course.name }}
+            </h5>
+        </div>
+        <div class="card-body p-4">
+            <form method="POST" action="/admin-courses/{{ edit_course.id }}/edit/">
+                {% csrf_token %}
+                <div class="row g-3">
+                    <div class="col-md-5">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-graduation-cap me-1 text-primary"></i>Course Name
+                        </label>
+                        {{ edit_form.name }}
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-tag me-1 text-primary"></i>Code
+                        </label>
+                        {{ edit_form.code }}
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-chair me-1 text-primary"></i>Total Seats
+                        </label>
+                        {{ edit_form.total_seats }}
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-door-open me-1 text-primary"></i>Available
+                        </label>
+                        {{ edit_form.available_seats }}
+                    </div>
+                    <div class="col-md-1 d-flex align-items-end">
+                        <button type="submit" class="btn btn-success w-100">
+                            <i class="fas fa-save"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Add Course (collapsible) -->
+    <div class="collapse {% if not edit_course %}show{% endif %} mb-4" id="addCourseForm">
+        <div class="card shadow">
+            <div class="card-header text-white" style="background: linear-gradient(135deg, #1b5e20, #2e7d32);">
+                <h5 class="mb-0"><i class="fas fa-plus-circle me-2"></i>Add New Course</h5>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST" action="/admin-courses/add/">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-md-5">
+                            <label class="form-label fw-semibold">Course Full Name</label>
+                            {{ add_form.name }}
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-semibold">Code <small class="text-muted">(max 10)</small></label>
+                            {{ add_form.code }}
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-semibold">Total Seats</label>
+                            {{ add_form.total_seats }}
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-semibold">Available Seats</label>
+                            {{ add_form.available_seats }}
+                        </div>
+                        <div class="col-md-1 d-flex align-items-end">
+                            <button type="submit" class="btn btn-success w-100">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Courses Table -->
+    <div class="card shadow">
+        <div class="card-header text-white py-3" style="background: linear-gradient(135deg, #0d1642, #1a237e);">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-list me-2"></i>All Courses</h5>
+                <span class="badge bg-light text-dark fs-6">{{ courses|length }} course{{ courses|length|pluralize }}</span>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            {% if courses %}
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Code</th>
+                            <th>Course Name</th>
+                            <th>Total Seats</th>
+                            <th>Available</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for course in courses %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>
+                                <span class="badge fs-6" style="background: linear-gradient(135deg, #1a237e, #1565c0);">
+                                    {{ course.code }}
+                                </span>
+                            </td>
+                            <td class="fw-semibold">{{ course.name }}</td>
+                            <td>{{ course.total_seats }}</td>
+                            <td>
+                                <span class="fw-bold {% if course.available_seats > 10 %}text-success{% elif course.available_seats > 0 %}text-warning{% else %}text-danger{% endif %}">
+                                    {{ course.available_seats }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if course.is_active %}
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-check-circle me-1"></i>Active
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-secondary">
+                                        <i class="fas fa-pause-circle me-1"></i>Inactive
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="d-flex gap-2">
+                                    <a href="/admin-courses/?edit={{ course.id }}"
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </a>
+                                    <form method="POST" action="/admin-courses/{{ course.id }}/toggle/"
+                                          style="display:inline;">
+                                        {% csrf_token %}
+                                        {% if course.is_active %}
+                                        <button type="submit" class="btn btn-sm btn-outline-warning">
+                                            <i class="fas fa-pause"></i> Deactivate
+                                        </button>
+                                        {% else %}
+                                        <button type="submit" class="btn btn-sm btn-outline-success">
+                                            <i class="fas fa-play"></i> Activate
+                                        </button>
+                                        {% endif %}
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-graduation-cap fa-3x text-muted mb-3"></i>
+                <p class="text-muted">No courses added yet.</p>
+                <button class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#addCourseForm">
+                    <i class="fas fa-plus me-2"></i>Add First Course
+                </button>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Info Note -->
+    <div class="alert mt-4" style="background:#e8eeff; border-left:4px solid #1a237e;">
+        <i class="fas fa-info-circle me-2 text-primary"></i>
+        <strong>Note:</strong> Only <strong>Active</strong> courses appear in the student application form dropdowns.
+        Deactivating a course prevents new applications for that program without affecting existing ones.
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,290 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+<div class="container my-5">
+
+    <h3 class="mb-4 text-primary fw-bold">
+        <i class="fas fa-tachometer-alt me-2"></i>Admin Dashboard
+    </h3>
+
+    <!-- Stats Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="stat-card stat-card-blue">
+                <i class="fas fa-file-alt fa-2x mb-2 opacity-75"></i>
+                <h2>{{ total }}</h2>
+                <h6>Total Applications</h6>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card stat-card-orange">
+                <i class="fas fa-clock fa-2x mb-2 opacity-75"></i>
+                <h2>{{ pending }}</h2>
+                <h6>Pending</h6>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card stat-card-green">
+                <i class="fas fa-check-circle fa-2x mb-2 opacity-75"></i>
+                <h2>{{ approved }}</h2>
+                <h6>Approved</h6>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card stat-card-red">
+                <i class="fas fa-times-circle fa-2x mb-2 opacity-75"></i>
+                <h2>{{ rejected }}</h2>
+                <h6>Rejected</h6>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feature 7: Charts Row -->
+    <div class="row g-4 mb-4">
+        <!-- Feature 7: Status Doughnut -->
+        <div class="col-md-5">
+            <div class="card shadow h-100">
+                <div class="card-header text-white py-3"
+                     style="background: linear-gradient(135deg, #0d1642, #1a237e);">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-pie me-2"></i>Application Status
+                    </h5>
+                </div>
+                <div class="card-body d-flex align-items-center justify-content-center py-4">
+                    <div style="max-width: 280px; width: 100%;">
+                        <canvas id="statusChart"
+                            data-labels='{{ chart_status_labels }}'
+                            data-values='{{ chart_status_data }}'
+                            data-colors='{{ chart_status_colors }}'>
+                        </canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feature 7: Course Bar -->
+        <div class="col-md-7">
+            <div class="card shadow h-100">
+                <div class="card-header text-white py-3"
+                     style="background: linear-gradient(135deg, #0d1642, #1a237e);">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-bar me-2"></i>Applications by Course
+                    </h5>
+                </div>
+                <div class="card-body d-flex align-items-center py-4">
+                    <div style="width: 100%;">
+                        <canvas id="courseChart" style="max-height: 220px;"
+                            data-labels='{{ chart_course_labels }}'
+                            data-values='{{ chart_course_data }}'
+                            data-colors='{{ chart_course_colors }}'>
+                        </canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="card shadow mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <a href="/admin-applications/" class="btn btn-outline-primary w-100 py-3">
+                        <i class="fas fa-list fa-2x d-block mb-2"></i>
+                        All Applications
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a href="/admin-applications/?status=Pending"
+                       class="btn btn-outline-warning w-100 py-3">
+                        <i class="fas fa-clock fa-2x d-block mb-2"></i>
+                        Pending Review
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a href="/merit-list/" class="btn btn-outline-success w-100 py-3">
+                        <i class="fas fa-trophy fa-2x d-block mb-2"></i>
+                        Merit List
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a href="/admin-courses/" class="btn btn-outline-info w-100 py-3">
+                        <i class="fas fa-chalkboard-teacher fa-2x d-block mb-2"></i>
+                        Manage Courses
+                    </a>
+                </div>
+            </div>
+            <div class="row g-3 mt-1">
+                <div class="col-md-3">
+                    <a href="/admin-export-csv/" class="btn btn-outline-secondary w-100 py-2">
+                        <i class="fas fa-file-csv me-2"></i>Export All CSV
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a href="/download-merit-pdf/" class="btn btn-outline-danger w-100 py-2">
+                        <i class="fas fa-file-pdf me-2"></i>Merit List PDF
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Applications -->
+    <div class="card shadow">
+        <div class="card-header bg-secondary text-white">
+            <h5 class="mb-0"><i class="fas fa-history me-2"></i>Recent Applications</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Student Name</th>
+                            <th>Preference 1</th>
+                            <th>Applied On</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for app in recent_applications %}
+                        <tr>
+                            <td class="fw-semibold">{{ app.student.get_full_name }}</td>
+                            <td>{{ app.get_preference1_display }}</td>
+                            <td>{{ app.applied_at|date:"d M Y" }}</td>
+                            <td>
+                                {% if app.status == 'Pending' %}
+                                    <span class="badge bg-warning text-dark">⏳ Pending</span>
+                                {% elif app.status == 'Approved' %}
+                                    <span class="badge bg-success">✅ Approved</span>
+                                {% else %}
+                                    <span class="badge bg-danger">❌ Rejected</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="/admin-applications/{{ app.id }}/"
+                                   class="btn btn-sm btn-primary">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-4 text-muted">
+                                No applications yet.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Feature 7: Chart.js — reads data from canvas data-* attributes (no Django vars in JS) -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+(function () {
+    'use strict';
+
+    // ── Status Doughnut ───────────────────────────────────────────────────────
+    var sc = document.getElementById('statusChart');
+    if (sc) {
+        var statusLabels = JSON.parse(sc.dataset.labels || '[]');
+        var statusData   = JSON.parse(sc.dataset.values || '[]');
+        var statusColors = JSON.parse(sc.dataset.colors || '[]');
+
+        new Chart(sc, {
+            type: 'doughnut',
+            data: {
+                labels: statusLabels,
+                datasets: [{
+                    data: statusData,
+                    backgroundColor: statusColors,
+                    borderWidth: 3,
+                    borderColor: '#ffffff',
+                    hoverOffset: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 16,
+                            font: { family: "'Segoe UI', sans-serif", size: 13 }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function (ctx) {
+                                var total = ctx.dataset.data.reduce(function (a, b) { return a + b; }, 0);
+                                var pct = total ? ((ctx.parsed / total) * 100).toFixed(1) : 0;
+                                return ' ' + ctx.label + ': ' + ctx.parsed + ' (' + pct + '%)';
+                            }
+                        }
+                    }
+                },
+                cutout: '62%'
+            }
+        });
+    }
+
+    // ── Course Bar ────────────────────────────────────────────────────────────
+    var cc = document.getElementById('courseChart');
+    if (cc) {
+        var courseLabels = JSON.parse(cc.dataset.labels || '[]');
+        var courseData   = JSON.parse(cc.dataset.values || '[]');
+        var courseColors = JSON.parse(cc.dataset.colors || '[]');
+
+        new Chart(cc, {
+            type: 'bar',
+            data: {
+                labels: courseLabels,
+                datasets: [{
+                    label: 'Applications',
+                    data: courseData,
+                    backgroundColor: courseColors,
+                    borderRadius: 8,
+                    borderSkipped: false,
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function (ctx) {
+                                return ' ' + ctx.parsed.y + ' application' + (ctx.parsed.y !== 1 ? 's' : '');
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1,
+                            font: { family: "'Segoe UI', sans-serif" }
+                        },
+                        grid: { color: 'rgba(0,0,0,0.05)' }
+                    },
+                    x: {
+                        ticks: { font: { family: "'Segoe UI', sans-serif", size: 12 } },
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+    }
+}());
+</script>
+{% endblock %}

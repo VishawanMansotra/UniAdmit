@@ -1,0 +1,250 @@
+{% extends 'base.html' %}
+{% block title %}Apply - University Admission System{% endblock %}
+{% block content %}
+<div class="container my-5">
+    <div class="card shadow p-4">
+        <h3 class="text-center mb-4 text-primary">
+            <i class="fas fa-file-alt me-2"></i>Admission Application Form
+        </h3>
+        <p class="text-center text-muted">UIET, University of Jammu — B.Tech Admission</p>
+        <hr>
+
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+
+        {% if duplicate %}
+        <!-- Feature 3: Duplicate application — show info card, hide the form entirely -->
+        <div class="text-center py-4">
+            <div class="mb-3">
+                <i class="fas fa-info-circle fa-4x" style="color:#1a237e; opacity:0.6;"></i>
+            </div>
+            <h4 class="fw-bold text-primary mb-2">Application Already Submitted</h4>
+            <p class="text-muted mb-1">
+                You have already applied for
+                {% if existing_app %}
+                    <strong>{{ existing_app.get_preference1_display }}</strong>
+                {% else %}
+                    a course
+                {% endif %}.
+            </p>
+            <p class="text-muted mb-4">
+                Check your dashboard for the current status of your application.
+            </p>
+            {% if existing_app %}
+            <div class="d-inline-block mb-3 px-4 py-2 rounded"
+                 style="background:#e8eeff; border-left:4px solid #1a237e;">
+                <small>
+                    <strong>Status:</strong>
+                    {% if existing_app.status == 'Pending' %}
+                        <span class="badge bg-warning text-dark ms-1">⏳ Pending Review</span>
+                    {% elif existing_app.status == 'Approved' %}
+                        <span class="badge bg-success ms-1">✅ Approved</span>
+                    {% else %}
+                        <span class="badge bg-danger ms-1">❌ Rejected</span>
+                    {% endif %}
+                </small>
+            </div>
+            {% endif %}
+            <div class="d-flex justify-content-center gap-3 flex-wrap mt-2">
+                <a href="/dashboard/"
+                   class="btn btn-primary px-5 py-2"
+                   style="background:linear-gradient(135deg,#1a237e,#1565c0); border:none; border-radius:8px;">
+                    <i class="fas fa-tachometer-alt me-2"></i>Go to Dashboard
+                </a>
+                <a href="/my-applications/"
+                   class="btn btn-outline-primary px-4 py-2"
+                   style="border-radius:8px;">
+                    <i class="fas fa-list me-2"></i>View My Applications
+                </a>
+            </div>
+        </div>
+
+        {% else %}
+        <!-- Normal application form — only shown when no duplicate exists -->
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+
+            <!-- Program Preferences -->
+            <div class="card mb-4 border-primary">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-graduation-cap me-2"></i>Program Preferences</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Preference 1 <span class="text-danger">*</span></label>
+                            {{ form.preference1 }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Preference 2 <span class="text-danger">*</span></label>
+                            {{ form.preference2 }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Exam Scores -->
+            <div class="card mb-4 border-success">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-trophy me-2"></i>Entrance Exam Scores</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">JEE Main Score (2025)</label>
+                            {{ form.jee_score }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">CUET Score (2025)</label>
+                            {{ form.cuet_score }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Personal Details -->
+            <div class="card mb-4 border-info">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-user me-2"></i>Personal Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Father's Name <span class="text-danger">*</span></label>
+                            {{ form.father_name }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Mother's Name <span class="text-danger">*</span></label>
+                            {{ form.mother_name }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Gender <span class="text-danger">*</span></label>
+                            {{ form.gender }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Date of Birth <span class="text-danger">*</span></label>
+                            {{ form.date_of_birth }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Category <span class="text-danger">*</span></label>
+                            {{ form.category }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Details -->
+            <div class="card mb-4 border-warning">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0"><i class="fas fa-address-book me-2"></i>Contact Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Phone Number <span class="text-danger">*</span></label>
+                            {{ form.phone }}
+                        </div>
+                        <div class="col-md-6 d-flex align-items-center mt-4">
+                            <div class="form-check">
+                                {{ form.is_jk_resident }}
+                                <label class="form-check-label fw-bold ms-2">Permanent Resident of J&K?</label>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-bold">Correspondence Address <span class="text-danger">*</span></label>
+                            {{ form.correspondence_address }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-bold">Permanent Address <span class="text-danger">*</span></label>
+                            {{ form.permanent_address }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Academic Details -->
+            <div class="card mb-4 border-secondary">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0"><i class="fas fa-book me-2"></i>Academic Details (10+2)</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Physics Marks <span class="text-danger">*</span></label>
+                            {{ form.physics_marks }}
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Chemistry Marks <span class="text-danger">*</span></label>
+                            {{ form.chemistry_marks }}
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Math Marks <span class="text-danger">*</span></label>
+                            {{ form.math_marks }}
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Maximum Marks <span class="text-danger">*</span></label>
+                            {{ form.max_marks }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Board Name <span class="text-danger">*</span></label>
+                            {{ form.board_name }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">School/College Name <span class="text-danger">*</span></label>
+                            {{ form.school_name }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Documents -->
+            <div class="card mb-4 border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0"><i class="fas fa-upload me-2"></i>Document Upload</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">10th Marksheet <span class="text-danger">*</span></label>
+                            {{ form.marksheet_10th }}
+                            <small class="text-muted">PDF or Image only</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">12th Marksheet <span class="text-danger">*</span></label>
+                            {{ form.marksheet_12th }}
+                            <small class="text-muted">PDF or Image only</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Category Certificate <span class="text-muted">(Optional)</span></label>
+                            {{ form.category_certificate }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">J&K Domicile Certificate <span class="text-muted">(Optional)</span></label>
+                            {{ form.domicile_certificate }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Signature <span class="text-danger">*</span></label>
+                            {{ form.signature }}
+                            <small class="text-muted">Upload clear image of your signature</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit -->
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary btn-lg px-5">
+                    <i class="fas fa-paper-plane me-2"></i>Submit Application
+                </button>
+            </div>
+
+        </form>
+        {% endif %}{# end duplicate check #}
+    </div>
+</div>
+{% endblock %}
