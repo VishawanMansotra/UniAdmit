@@ -21,42 +21,61 @@
 
                 <form method="POST" enctype="multipart/form-data">
                     {% csrf_token %}
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {{ form.non_field_errors }}
+                    </div>
+                    {% endif %}
+                    {% if form.errors %}
+                    <div class="alert alert-danger">
+                        Please correct the errors below.
+                    </div>
+                    {% endif %}
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label fw-bold">First Name</label>
                             {{ form.first_name }}
+                            <div class="text-danger small">{{ form.first_name.errors }}</div>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-bold">Last Name</label>
                             {{ form.last_name }}
+                            <div class="text-danger small">{{ form.last_name.errors }}</div>
                         </div>
                         <div class="col-12">
                             <label class="form-label fw-bold">Email Address</label>
                             {{ form.email }}
+                            <div class="text-danger small">{{ form.email.errors }}</div>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-bold">Phone Number</label>
                             {{ form.phone }}
+                            <div class="text-danger small">{{ form.phone.errors }}</div>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-bold">Date of Birth</label>
                             {{ form.date_of_birth }}
+                            <div class="text-danger small">{{ form.date_of_birth.errors }}</div>
                         </div>
                         <div class="col-12">
                             <label class="form-label fw-bold">Address</label>
                             {{ form.address }}
+                            <div class="text-danger small">{{ form.address.errors }}</div>
                         </div>
                         <div class="col-12">
                             <label class="form-label fw-bold">Profile Photo (Optional)</label>
                             {{ form.photo }}
+                            <div class="text-danger small">{{ form.photo.errors }}</div>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-bold">Password</label>
                             {{ form.password }}
+                            <div class="text-danger small">{{ form.password.errors }}</div>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-bold">Confirm Password</label>
                             {{ form.confirm_password }}
+                            <div class="text-danger small">{{ form.confirm_password.errors }}</div>
                         </div>
                         <div class="col-12 mt-3">
                             <button type="submit" class="btn btn-primary w-100 py-2">
