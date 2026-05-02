@@ -1,1 +1,1 @@
-web: gunicorn admission.wsgi:application
+web: python manage.py collectstatic --noinput && python manage.py migrate --noinput && gunicorn admission.wsgi:application
