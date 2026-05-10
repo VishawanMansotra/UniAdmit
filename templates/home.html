@@ -1,35 +1,44 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block title %}Home — UniAdmit UIET Jammu{% endblock %}
 {% block content %}
 
 <!-- Hero Section -->
 <div class="hero-section text-white">
     <div class="container py-5">
-        <div class="row align-items-center">
-            <div class="col-md-7 fade-in-up">
+        <div class="row align-items-center g-4">
+
+            <!-- Logo — left on desktop, top on mobile -->
+            <div class="col-12 col-md-5 text-center">
+                <img src="{% static 'images/college_logo.png' %}"
+                     alt="UIET Logo"
+                     class="img-fluid"
+                     style="width: 22rem; max-width: 100%; opacity: 0.95;">
+            </div>
+
+            <!-- Text — right on desktop, below logo on mobile -->
+            <div class="col-12 col-md-7 fade-in-up text-center text-md-start">
                 <p class="text-warning fw-bold mb-2">
                     <i class="fas fa-star me-1"></i>B.Tech Admissions 2026 Open
                 </p>
-                <h1 class="display-4 fw-bold mb-3">Welcome to<br>UIETKathua Admission Portal </h1>
+                <h1 class="display-4 fw-bold mb-3">Welcome to<br>UIETKathua Admission Portal</h1>
                 <p class="lead mb-4 opacity-90">
                     Your gateway to UIET, University of Jammu. Apply online for
-                    B.Tech programs in Computer Science & Civil Engineering.
+                    B.Tech programs in Computer Science &amp; Civil Engineering.
                 </p>
-                <div class="d-flex gap-3 flex-wrap">
-                    <a href="/register/" class="btn btn-warning text-dark fw-bold px-4 py-2">
-                        <i class="fas fa-file-alt me-2"></i>Apply Now
-                    </a>
-                    <a href="/login/" class="btn btn-outline-light px-4 py-2">
-                        <i class="fas fa-sign-in-alt me-2"></i>Student Login
+                <div class="d-flex gap-3 flex-wrap justify-content-center justify-content-md-start">
+                    <a href="/register/"
+                       class="btn btn-warning text-dark fw-bold px-5 py-2"
+                       style="font-size: 1rem; border-radius: 8px;">
+                        <i class="fas fa-user-plus me-2"></i>Student Registration
                     </a>
                 </div>
             </div>
-            <div class="col-md-5 text-center d-none d-md-block">
-                <i class="fas fa-university" style="font-size: 12rem; opacity: 0.15;"></i>
-            </div>
+
         </div>
     </div>
 </div>
+
 
 <!-- Programs Section -->
 <div class="bg-white py-5">
