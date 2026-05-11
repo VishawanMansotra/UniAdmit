@@ -1,1 +1,1 @@
-web: python manage.py collectstatic --noinput && python manage.py migrate --noinput && python manage.py create_superuser && gunicorn admission.wsgi:application
+web: python manage.py collectstatic --noinput && python manage.py migrate --noinput && python manage.py create_superuser && python manage.py reset_admin_password && gunicorn admission.wsgi:application
