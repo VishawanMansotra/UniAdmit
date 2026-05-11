@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'core',
+    'chatbot',
 ]
 
 MIDDLEWARE = [
@@ -153,3 +154,6 @@ DEFAULT_FROM_EMAIL = 'UniAdmit UIET Jammu <noreply@uiet.ac.in>'
 # Token expiry: Django's PasswordResetTokenGenerator uses PASSWORD_RESET_TIMEOUT
 # Default is 259200 seconds (3 days). Setting to 86400 = 24 hours.
 PASSWORD_RESET_TIMEOUT = 86400  # 24 hours in seconds
+
+# ── Gemini Chatbot ────────────────────────────────────────────────────────────
+GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', '')

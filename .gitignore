@@ -47,3 +47,6 @@ mysql_backup/
 
 # Uploads
 uploads/
+
+# Security
+.env
