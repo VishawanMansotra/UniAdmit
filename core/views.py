@@ -3,6 +3,7 @@ import csv
 import json
 import hmac
 import hashlib
+import threading
 from datetime import date
 from django.db import IntegrityError
 
@@ -58,20 +59,24 @@ def _get_courses_dict():
 def _send_email(subject, body, recipient_email):
     """
     Feature: Email Notifications
-    Sends a plain-text email via Django's send_mail.
-    Wrapped in try/except so a failing SMTP config never crashes the app.
+    Sends a plain-text email in a background thread via Django's send_mail.
+    Running in a thread ensures the web request completes immediately,
+    preventing timeouts on live hosts (e.g. Railway) when SMTP is slow.
     """
-    try:
-        send_mail(
-            subject=f'UniAdmit — UIET Jammu | {subject}',
-            message=body,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[recipient_email],
-            fail_silently=False,
-        )
-    except Exception:
-        # Silently ignore — email failure must not break any user flow
-        pass
+    def _send():
+        try:
+            send_mail(
+                subject=f'UniAdmit — UIET Jammu | {subject}',
+                message=body,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[recipient_email],
+                fail_silently=False,
+            )
+        except Exception:
+            # Silently ignore — email failure must not break any user flow
+            pass
+
+    threading.Thread(target=_send, daemon=True).start()
 
 
 # ─── Public Views ────────────────────────────────────────────────────────────
