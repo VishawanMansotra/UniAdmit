@@ -16,7 +16,7 @@ class Command(BaseCommand):
     help = 'Seeds initial college knowledge base for UniAdmit chatbot'
 
     def handle(self, *args, **kwargs):
-        self.stdout.write('🚀 Seeding college knowledge base...')
+        self.stdout.write('Seeding college knowledge base...')
 
         knowledge_data = [
 
@@ -240,14 +240,14 @@ class Command(BaseCommand):
             )
             if created:
                 created_count += 1
-                self.stdout.write(f"  ✅ Added: {entry['topic']}")
+                self.stdout.write(f"  Added: {entry['topic']}")
             else:
                 skipped_count += 1
-                self.stdout.write(f"  ⏭️  Skipped (exists): {entry['topic']}")
+                self.stdout.write(f"  Skipped (exists): {entry['topic']}")
 
         self.stdout.write(self.style.SUCCESS(
-            f'\n✅ Done! Created: {created_count}, Skipped: {skipped_count}'
+            f'\nDone! Created: {created_count}, Skipped: {skipped_count}'
         ))
         self.stdout.write(
-            '📌 Go to Django Admin → College Knowledge to add/edit more entries.\n'
+            'Go to Django Admin -> College Knowledge to add/edit more entries.\n'
         )
