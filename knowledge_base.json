@@ -1,4 +1,4 @@
-[
+ï»¿[
 {
     "model": "chatbot.collegeknowledge",
     "pk": 1,
@@ -29,7 +29,7 @@
     "fields": {
         "category": "contact",
         "topic": "Contact Information",
-        "information": "Admission Office: University of Jammu, Jammu – 180006.\nPhone: Contact the university directly.\nWebsite: www.uok.edu.in\nOffice Hours: Monday to Friday, 10:00 AM to 4:00 PM.",
+        "information": "Admission Office: University of Jammu, Jammu - 180006.\nPhone: Contact the university directly.\nWebsite: www.uok.edu.in\nOffice Hours: Monday to Friday, 10:00 AM to 4:00 PM.",
         "is_active": true,
         "created_at": "2026-05-11T03:05:11.386Z",
         "updated_at": "2026-05-11T03:05:11.386Z"
@@ -149,7 +149,7 @@
     "fields": {
         "category": "facilities",
         "topic": "Campus Facilities",
-        "information": "UIET campus offers:\n• Well-equipped computer labs with high-speed internet.\n• Modern class rooms and seminar halls.\n• Central library with large collection of books and journals.\n• Sports facilities including outdoor courts.\n• Canteen/cafeteria on campus.\n• Wi-Fi enabled campus.\n• Separate hostel facilities (boys and girls).\n• Medical room for first aid.\n• ATM facility nearby.",
+        "information": "UIET campus offers:\nâ€¢ Well-equipped computer labs with high-speed internet.\nâ€¢ Modern class rooms and seminar halls.\nâ€¢ Central library with large collection of books and journals.\nâ€¢ Sports facilities including outdoor courts.\nâ€¢ Canteen/cafeteria on campus.\nâ€¢ Wi-Fi enabled campus.\nâ€¢ Separate hostel facilities (boys and girls).\nâ€¢ Medical room for first aid.\nâ€¢ ATM facility nearby.",
         "is_active": true,
         "created_at": "2026-05-11T03:05:11.467Z",
         "updated_at": "2026-05-11T03:05:11.467Z"
