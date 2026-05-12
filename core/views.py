@@ -161,8 +161,14 @@ def admin_login(request):
     if request.method == 'POST':
         email = request.POST.get('email')
         password = request.POST.get('password')
-        user = authenticate(request, username=email, password=password)
-        if user is not None and user.is_staff:
+        # Look up the user by email first, then verify the password directly.
+        # This handles the case where the superuser's username differs from
+        # their email (e.g. username='admin', email='admin@uiet.ac.in').
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            user = None
+        if user is not None and user.is_staff and user.check_password(password):
             login(request, user)
             messages.success(request, f'Welcome, Admin {user.first_name}!')
             return redirect('admin_dashboard')
