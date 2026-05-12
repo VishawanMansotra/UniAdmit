@@ -1,1 +1,1 @@
-web: python manage.py migrate --noinput && python manage.py seed_knowledge && python manage.py create_superuser && python manage.py collectstatic --noinput && gunicorn admission.wsgi:application
+web: python manage.py migrate --noinput && python manage.py loaddata knowledge_base.json && python manage.py create_superuser && python manage.py collectstatic --noinput && gunicorn admission.wsgi:application

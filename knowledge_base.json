@@ -1,0 +1,194 @@
+[
+{
+    "model": "chatbot.collegeknowledge",
+    "pk": 1,
+    "fields": {
+        "category": "general",
+        "topic": "About UIET",
+        "information": "UIET (University Institute of Engineering & Technology) is a premier engineering college under the University of Jammu, Jammu & Kashmir, India. It offers undergraduate engineering programs with a focus on academic excellence and holistic development.",
+        "is_active": true,
+        "created_at": "2026-05-11T03:05:11.359Z",
+        "updated_at": "2026-05-11T03:05:11.359Z"
+    }
+},
+{
+    "model": "chatbot.collegeknowledge",
+    "pk": 2,
+    "fields": {
+        "category": "general",
+        "topic": "College Location",
+        "information": "UIET is located in the University of Jammu campus, Jammu, Jammu & Kashmir. It is easily accessible by road and is well-connected to the main city.",
+        "is_active": true,
+        "created_at": "2026-05-11T03:05:11.376Z",
+        "updated_at": "2026-05-11T03:05:11.376Z"
+    }
+},
+{
+    "model": "chatbot.collegeknowledge",
+    "pk": 3,
+    "fields": {
+        "category": "contact",
+        "topic": "Contact Information",
+        "information": "Admission Office: University of Jammu, Jammu – 180006.\nPhone: Contact the university directly.\nWebsite: www.uok.edu.in\nOffice Hours: Monday to Friday, 10:00 AM to 4:00 PM.",
+        "is_active": true,
+        "created_at": "2026-05-11T03:05:11.386Z",
+        "updated_at": "2026-05-11T03:05:11.386Z"
+    }
+},
+{
+    "model": "chatbot.collegeknowledge",
+    "pk": 4,
+    "fields": {
+        "category": "courses",
+        "topic": "B.Tech CSE (Computer Science Engineering)",
+        "information": "Duration: 4 years (8 semesters).\nTotal Seats: 60 (approx).\nEligibility: 10+2 with Physics, Chemistry, Mathematics (PCM) with minimum 50% marks.\nJEE Main score required.\nSubjects include: Programming, Data Structures, DBMS, AI, Networks, Web Development, and more.\nDegree awarded by University of Jammu.",
+        "is_active": true,
+        "created_at": "2026-05-11T03:05:11.396Z",
+        "updated_at": "2026-05-11T03:05:11.396Z"
+    }
+},
+{
+    "model": "chatbot.collegeknowledge",
+    "pk": 5,
+    "fields": {
+        "category": "courses",
+        "topic": "B.Tech Civil Engineering",
+        "information": "Duration: 4 years (8 semesters).\nTotal Seats: 60 (approx).\nEligibility: 10+2 with Physics, Chemistry, Mathematics (PCM) with minimum 50% marks.\nJEE Main score required.\nSubjects include: Structural Engineering, Fluid Mechanics, Construction, Surveying, and more.\nDegree awarded by University of Jammu.",
+        "is_active": true,
+        "created_at": "2026-05-11T03:05:11.406Z",
+        "updated_at": "2026-05-11T03:05:11.406Z"
+    }
+},
+{
+    "model": "chatbot.collegeknowledge",
+    "pk": 6,
+    "fields": {
+        "category": "admissions",
+        "topic": "Admission Process Overview",
+        "information": "Step 1: Register on the UniAdmit portal.\nStep 2: Fill the online application form with personal and academic details.\nStep 3: Upload required documents (marksheets, certificates, photo, signature).\nStep 4: Submit the application.\nStep 5: Merit list will be published on the portal.\nStep 6: Selected candidates attend document verification and counseling.\nStep 7: Pay fees and confirm admission.",
+        "is_active": true,
+        "created_at": "2026-05-11T03:05:11.414Z",
+        "updated_at": "2026-05-11T03:05:11.415Z"
+    }
+},
+{
+    "model": "chatbot.collegeknowledge",
+    "pk": 7,
+    "fields": {
+        "category": "admissions",
+        "topic": "Admission Timeline",
+        "information": "Application Start: Check the official portal for dates.\nApplication Deadline: As notified on portal.\nMerit List Publication: After deadline closes.\nDocument Verification: Announced after merit list.\nClasses Begin: As per university academic calendar.\nNote: All dates are subject to change. Check portal regularly.",
+        "is_active": true,
+        "created_at": "2026-05-11T03:05:11.423Z",
+        "updated_at": "2026-05-11T03:05:11.423Z"
+    }
+},
+{
+    "model": "chatbot.collegeknowledge",
+    "pk": 8,
+    "fields": {
+        "category": "admissions",
+        "topic": "Merit List",
+        "information": "Merit list is prepared based on JEE Main scores and 10+2 marks as per the university merit formula.\nMerit list is published on the UniAdmit portal.\nStudents can view their merit rank after login.\nCategory-wise merit lists are also published (General, SC, ST, OBC, etc.).",
+        "is_active": true,
+        "created_at": "2026-05-11T03:05:11.430Z",
+        "updated_at": "2026-05-11T03:05:11.430Z"
+    }
+},
+{
+    "model": "chatbot.collegeknowledge",
+    "pk": 9,
+    "fields": {
+        "category": "admissions",
+        "topic": "How to Check Application Status",
+        "information": "To check your application status:\n1. Login to the UniAdmit portal.\n2. Go to your Dashboard.\n3. Click on \"My Application\".\n4. Your current status will be displayed (Pending / Approved / Rejected).\nIf rejected, the reason/remarks will be shown.",
+        "is_active": true,
+        "created_at": "2026-05-11T03:05:11.438Z",
+        "updated_at": "2026-05-11T03:05:11.439Z"
+    }
+},
+{
+    "model": "chatbot.collegeknowledge",
+    "pk": 10,
+    "fields": {
+        "category": "eligibility",
+        "topic": "Eligibility for B.Tech Programs",
+        "information": "Minimum Qualification: 10+2 or equivalent from a recognized board.\nRequired Subjects: Physics, Chemistry, and Mathematics (PCM).\nMinimum Marks: 50% aggregate in PCM (45% for SC/ST candidates).\nEntrance Exam: Valid JEE Main score is mandatory.\nAge Limit: As per JEE Main norms (generally 17 years minimum).\nDomicile: J&K domicile certificate may be required for state quota seats.",
+        "is_active": true,
+        "created_at": "2026-05-11T03:05:11.445Z",
+        "updated_at": "2026-05-11T03:05:11.445Z"
+    }
+},
+{
+    "model": "chatbot.collegeknowledge",
+    "pk": 11,
+    "fields": {
+        "category": "eligibility",
+        "topic": "Required Documents for Admission",
+        "information": "1. 10th Class Marksheet and Certificate.\n2. 12th Class (10+2) Marksheet and Certificate.\n3. JEE Main Scorecard.\n4. Character Certificate from last institution.\n5. Migration Certificate (if applicable).\n6. Category Certificate (SC/ST/OBC) if applicable.\n7. J&K Domicile Certificate.\n8. Recent Passport-size Photographs (at least 6).\n9. Aadhar Card / ID Proof.\n10. Medical Fitness Certificate.",
+        "is_active": true,
+        "created_at": "2026-05-11T03:05:11.452Z",
+        "updated_at": "2026-05-11T03:05:11.452Z"
+    }
+},
+{
+    "model": "chatbot.collegeknowledge",
+    "pk": 12,
+    "fields": {
+        "category": "fees",
+        "topic": "Fee Structure",
+        "information": "The exact fee structure is notified at the time of admission.\nFee categories include: Tuition Fee, Development Fee, Exam Fee, and other charges.\nFee concessions are available for SC/ST and economically weaker section students.\nScholarships like Reliance Foundation, J&K State Scholarship, and Post-Matric Scholarship are available for eligible students.\nFor exact fee details, contact the admission office or check official notifications.",
+        "is_active": true,
+        "created_at": "2026-05-11T03:05:11.460Z",
+        "updated_at": "2026-05-11T03:05:11.460Z"
+    }
+},
+{
+    "model": "chatbot.collegeknowledge",
+    "pk": 13,
+    "fields": {
+        "category": "facilities",
+        "topic": "Campus Facilities",
+        "information": "UIET campus offers:\n• Well-equipped computer labs with high-speed internet.\n• Modern class rooms and seminar halls.\n• Central library with large collection of books and journals.\n• Sports facilities including outdoor courts.\n• Canteen/cafeteria on campus.\n• Wi-Fi enabled campus.\n• Separate hostel facilities (boys and girls).\n• Medical room for first aid.\n• ATM facility nearby.",
+        "is_active": true,
+        "created_at": "2026-05-11T03:05:11.467Z",
+        "updated_at": "2026-05-11T03:05:11.467Z"
+    }
+},
+{
+    "model": "chatbot.collegeknowledge",
+    "pk": 14,
+    "fields": {
+        "category": "hostel",
+        "topic": "Hostel Facilities",
+        "information": "Hostel accommodation is available for both boys and girls on the University of Jammu campus.\nFacilities include: Furnished rooms, common room, mess facility, Wi-Fi, and 24-hour security.\nHostel allotment is done on availability basis and merit.\nFor hostel enquiries, contact the University of Jammu hostel office directly.",
+        "is_active": true,
+        "created_at": "2026-05-11T03:05:11.480Z",
+        "updated_at": "2026-05-11T03:05:11.480Z"
+    }
+},
+{
+    "model": "chatbot.collegeknowledge",
+    "pk": 15,
+    "fields": {
+        "category": "placement",
+        "topic": "Placement & Career",
+        "information": "UIET has a Training & Placement cell that helps students with career guidance.\nCompanies from IT, construction, and government sectors visit for campus placements.\nStudents are encouraged to participate in internships, workshops, and hackathons.\nHigher studies (M.Tech, MBA, M.Sc) are also pursued by many graduates.\nGovernment job preparation (JKSSB, UPSC, SSC) support is also available.",
+        "is_active": true,
+        "created_at": "2026-05-11T03:05:11.488Z",
+        "updated_at": "2026-05-11T03:05:11.488Z"
+    }
+},
+{
+    "model": "chatbot.collegeknowledge",
+    "pk": 16,
+    "fields": {
+        "category": "exam",
+        "topic": "Examination Pattern",
+        "information": "University of Jammu conducts semester-wise examinations.\nEach semester has: Internal Assessment (30 marks) + End Semester Exam (70 marks).\nMinimum passing marks: 40% in each subject.\nStudents must maintain 75% attendance to appear in examinations.\nResults are published on the University of Jammu official website.",
+        "is_active": true,
+        "created_at": "2026-05-11T03:05:11.495Z",
+        "updated_at": "2026-05-11T03:05:11.495Z"
+    }
+}
+]
