@@ -4,6 +4,8 @@ import json
 import hmac
 import hashlib
 import threading
+import logging
+import traceback
 import pyotp
 from datetime import date
 from django.db import IntegrityError
@@ -54,6 +56,9 @@ def _get_courses_dict():
     }
 
 
+logger = logging.getLogger(__name__)
+
+
 def _send_email(subject, body, recipient_email):
     """
     Feature: Email Notifications
@@ -61,6 +66,27 @@ def _send_email(subject, body, recipient_email):
     Running in a thread ensures the web request completes immediately,
     preventing timeouts on live hosts (e.g. Railway) when SMTP is slow.
     """
+    # 1. Print details to stdout/logs so they are visible in live server logs
+    print("\n" + "=" * 60)
+    print(f"EMAIL OUTBOX NOTIFICATION:")
+    print(f"Recipient: {recipient_email}")
+    print(f"Subject:   UniAdmit — UIET Jammu | {subject}")
+    print("-" * 60)
+    print(body)
+    print("=" * 60 + "\n")
+
+    # 2. Check if host/password are set and log their presence safely
+    host_user = getattr(settings, 'EMAIL_HOST_USER', '')
+    host_pass = getattr(settings, 'EMAIL_HOST_PASSWORD', '')
+    if not host_user or not host_pass:
+        print("[WARNING] SMTP Email credentials (EMAIL_HOST_USER or EMAIL_HOST_PASSWORD) are not set!")
+        logger.warning("SMTP Email credentials (EMAIL_HOST_USER or EMAIL_HOST_PASSWORD) are not set!")
+    else:
+        masked_user = host_user[:3] + "..." + host_user[host_user.find("@"):] if "@" in host_user else "..."
+        masked_pass = host_pass[:2] + "..." + host_pass[-2:] if len(host_pass) > 4 else "..."
+        print(f"[INFO] SMTP Configuration active (User: {masked_user}, Password length: {len(host_pass)})")
+        logger.info(f"SMTP Configuration active (User: {masked_user})")
+
     def _send():
         try:
             send_mail(
@@ -70,9 +96,13 @@ def _send_email(subject, body, recipient_email):
                 recipient_list=[recipient_email],
                 fail_silently=False,
             )
-        except Exception:
-            # Silently ignore — email failure must not break any user flow
-            pass
+            print(f"[SUCCESS] Email successfully sent to {recipient_email}")
+            logger.info(f"Email successfully sent to {recipient_email}")
+        except Exception as e:
+            # Print full exception details and stack trace to server console for troubleshooting
+            print(f"[ERROR] Failed to send email to {recipient_email}: {str(e)}")
+            traceback.print_exc()
+            logger.error(f"Failed to send email to {recipient_email}: {str(e)}", exc_info=True)
 
     threading.Thread(target=_send, daemon=True).start()
 

@@ -1,98 +1,38 @@
 [
 {
     "model": "chatbot.collegeknowledge",
-    "pk": 1,
-    "fields": {
-        "category": "general",
-        "topic": "About UIET",
-        "information": "UIET (University Institute of Engineering & Technology) is a premier engineering college under the University of Jammu, Jammu & Kashmir, India. It offers undergraduate engineering programs with a focus on academic excellence and holistic development.",
-        "is_active": true,
-        "created_at": "2026-05-11T03:05:11.359Z",
-        "updated_at": "2026-05-11T03:05:11.359Z"
-    }
-},
-{
-    "model": "chatbot.collegeknowledge",
-    "pk": 2,
-    "fields": {
-        "category": "general",
-        "topic": "College Location",
-        "information": "UIET is located in the University of Jammu campus, Jammu, Jammu & Kashmir. It is easily accessible by road and is well-connected to the main city.",
-        "is_active": true,
-        "created_at": "2026-05-11T03:05:11.376Z",
-        "updated_at": "2026-05-11T03:05:11.376Z"
-    }
-},
-{
-    "model": "chatbot.collegeknowledge",
-    "pk": 3,
-    "fields": {
-        "category": "contact",
-        "topic": "Contact Information",
-        "information": "Admission Office: University of Jammu, Jammu - 180006.\nPhone: Contact the university directly.\nWebsite: www.uok.edu.in\nOffice Hours: Monday to Friday, 10:00 AM to 4:00 PM.",
-        "is_active": true,
-        "created_at": "2026-05-11T03:05:11.386Z",
-        "updated_at": "2026-05-11T03:05:11.386Z"
-    }
-},
-{
-    "model": "chatbot.collegeknowledge",
-    "pk": 4,
-    "fields": {
-        "category": "courses",
-        "topic": "B.Tech CSE (Computer Science Engineering)",
-        "information": "Duration: 4 years (8 semesters).\nTotal Seats: 60 (approx).\nEligibility: 10+2 with Physics, Chemistry, Mathematics (PCM) with minimum 50% marks.\nJEE Main score required.\nSubjects include: Programming, Data Structures, DBMS, AI, Networks, Web Development, and more.\nDegree awarded by University of Jammu.",
-        "is_active": true,
-        "created_at": "2026-05-11T03:05:11.396Z",
-        "updated_at": "2026-05-11T03:05:11.396Z"
-    }
-},
-{
-    "model": "chatbot.collegeknowledge",
-    "pk": 5,
-    "fields": {
-        "category": "courses",
-        "topic": "B.Tech Civil Engineering",
-        "information": "Duration: 4 years (8 semesters).\nTotal Seats: 60 (approx).\nEligibility: 10+2 with Physics, Chemistry, Mathematics (PCM) with minimum 50% marks.\nJEE Main score required.\nSubjects include: Structural Engineering, Fluid Mechanics, Construction, Surveying, and more.\nDegree awarded by University of Jammu.",
-        "is_active": true,
-        "created_at": "2026-05-11T03:05:11.406Z",
-        "updated_at": "2026-05-11T03:05:11.406Z"
-    }
-},
-{
-    "model": "chatbot.collegeknowledge",
     "pk": 6,
     "fields": {
         "category": "admissions",
         "topic": "Admission Process Overview",
-        "information": "Step 1: Register on the UniAdmit portal.\nStep 2: Fill the online application form with personal and academic details.\nStep 3: Upload required documents (marksheets, certificates, photo, signature).\nStep 4: Submit the application.\nStep 5: Merit list will be published on the portal.\nStep 6: Selected candidates attend document verification and counseling.\nStep 7: Pay fees and confirm admission.",
+        "information": "Step 1: Register on the UniAdmit portal (this website).\nStep 2: Verify your email via OTP.\nStep 3: Fill the online application form with personal and academic details.\nStep 4: Upload required documents (marksheets, certificates, photo, signature).\nStep 5: Pay the application fee of Rs. 1,500/- via J&K Bank.\nStep 6: Submit the application — no changes allowed after submission.\nStep 7: Merit list will be published on 02 June 2026.\nStep 8: Selected candidates attend document verification and counseling.\nStep 9: Pay semester fees and confirm admission.",
         "is_active": true,
         "created_at": "2026-05-11T03:05:11.414Z",
-        "updated_at": "2026-05-11T03:05:11.415Z"
+        "updated_at": "2026-05-19T17:22:15.597Z"
     }
 },
 {
     "model": "chatbot.collegeknowledge",
-    "pk": 7,
+    "pk": 19,
     "fields": {
         "category": "admissions",
-        "topic": "Admission Timeline",
-        "information": "Application Start: Check the official portal for dates.\nApplication Deadline: As notified on portal.\nMerit List Publication: After deadline closes.\nDocument Verification: Announced after merit list.\nClasses Begin: As per university academic calendar.\nNote: All dates are subject to change. Check portal regularly.",
+        "topic": "Admission Rounds — JEE, CUET, 10+2",
+        "information": "Admissions at UIET 2026-27 are conducted in up to 3 rounds:\n\nRound 1 — JEE Mains 2026 (Primary Round):\n  Admission is based on JEE Mains 2026 score merit. This is the main round.\n\nRound 2 — CUET UG (If seats remain after Round 1):\n  Admission based on CUET UG score. A separate notification will be issued.\n\nRound 3 — 10+2 / Higher Secondary Score (If seats still remain after Round 2):\n  Admission based on Class 12 board examination marks. A separate notification will be issued.\n\nNote: Seats will be allotted strictly on merit and branch preference.",
         "is_active": true,
-        "created_at": "2026-05-11T03:05:11.423Z",
-        "updated_at": "2026-05-11T03:05:11.423Z"
+        "created_at": "2026-05-18T07:58:26.715Z",
+        "updated_at": "2026-05-19T17:22:15.614Z"
     }
 },
 {
     "model": "chatbot.collegeknowledge",
-    "pk": 8,
+    "pk": 18,
     "fields": {
         "category": "admissions",
-        "topic": "Merit List",
-        "information": "Merit list is prepared based on JEE Main scores and 10+2 marks as per the university merit formula.\nMerit list is published on the UniAdmit portal.\nStudents can view their merit rank after login.\nCategory-wise merit lists are also published (General, SC, ST, OBC, etc.).",
+        "topic": "Admission Timeline 2026-27",
+        "information": "Official Admission Dates for 2026-27 (Ref: No.UIET/KC/JU/2026-27/126):\n• Applications Open: 11 May 2026.\n• Last Date without late fee: 24 May 2026.\n• Last Date with Rs. 110 late fee: 31 May 2026.\n• Selection List Published: 02 June 2026.\nNote: All dates are as per the official notification. Check the portal for updates.",
         "is_active": true,
-        "created_at": "2026-05-11T03:05:11.430Z",
-        "updated_at": "2026-05-11T03:05:11.430Z"
+        "created_at": "2026-05-18T07:58:26.707Z",
+        "updated_at": "2026-05-19T17:22:15.605Z"
     }
 },
 {
@@ -101,10 +41,94 @@
     "fields": {
         "category": "admissions",
         "topic": "How to Check Application Status",
-        "information": "To check your application status:\n1. Login to the UniAdmit portal.\n2. Go to your Dashboard.\n3. Click on \"My Application\".\n4. Your current status will be displayed (Pending / Approved / Rejected).\nIf rejected, the reason/remarks will be shown.",
+        "information": "To check your application status:\n1. Login to the UniAdmit portal.\n2. Go to your Dashboard.\n3. Click on \"My Applications\".\n4. Your current status will be displayed (Pending / Approved / Rejected).\nIf rejected, remarks will be shown. For queries, email: uietkc@jammuuniversity.ac.in.",
         "is_active": true,
         "created_at": "2026-05-11T03:05:11.438Z",
-        "updated_at": "2026-05-11T03:05:11.439Z"
+        "updated_at": "2026-05-19T17:22:15.641Z"
+    }
+},
+{
+    "model": "chatbot.collegeknowledge",
+    "pk": 21,
+    "fields": {
+        "category": "admissions",
+        "topic": "Important Instructions for Applicants",
+        "information": "Official instructions from UIET Admission Notice 2026-27:\n1. Read all instructions carefully before filling the application form.\n2. Fill the form properly and accurately.\n3. Changes are NOT allowed once the application form is submitted.\n4. Provide a working Email ID and Contact Number.\n5. Application fee is Rs. 1,500/- (without late fee).\n6. Upload all required documents.\n7. An acknowledgement will be sent after successful submission.\n8. Submission of application does NOT guarantee admission.\n9. Seats are allotted strictly on merit and branch preference.",
+        "is_active": true,
+        "created_at": "2026-05-18T07:58:26.748Z",
+        "updated_at": "2026-05-19T17:22:15.649Z"
+    }
+},
+{
+    "model": "chatbot.collegeknowledge",
+    "pk": 8,
+    "fields": {
+        "category": "admissions",
+        "topic": "Merit List",
+        "information": "Merit list for 2026-27 will be published on 02 June 2026 on the UniAdmit portal.\nRound 1 merit is based on JEE Mains 2026 score.\nIf Round 2 (CUET) or Round 3 (10+2) are needed, separate merit lists will be published.\nCategory-wise merit lists are prepared (General, SC, ST, OBC, EWS, PWD).\nStudents can view their application status after login to the portal.",
+        "is_active": true,
+        "created_at": "2026-05-11T03:05:11.430Z",
+        "updated_at": "2026-05-19T17:22:15.632Z"
+    }
+},
+{
+    "model": "chatbot.collegeknowledge",
+    "pk": 20,
+    "fields": {
+        "category": "admissions",
+        "topic": "Seat Distribution and Reservation",
+        "information": "Total Seats: 180 (60 per program × 3 programs).\nSeat Distribution per program (60 seats):\n  • 80% = 48 seats for students from schools under University of Jammu jurisdiction.\n  • 20% = 12 seats open to all students from rest of UT/Country.\nPrograms: B.Tech CSE, B.Tech Civil Engineering, B.Tech ECE.\nWithin each category, further reservation as per Govt. of J&K norms applies.",
+        "is_active": true,
+        "created_at": "2026-05-18T07:58:26.725Z",
+        "updated_at": "2026-05-19T17:22:15.624Z"
+    }
+},
+{
+    "model": "chatbot.collegeknowledge",
+    "pk": 3,
+    "fields": {
+        "category": "contact",
+        "topic": "Contact Information",
+        "information": "Admission Office: UIET, Kathua Campus, University of Jammu, Kathua – J&K.\nPhone: 01922-297470.\nEmail: uietkc@jammuuniversity.ac.in.\nWeb Master: itcell.uietju@gmail.com.\nOffice Hours: Monday to Friday, 10:00 AM to 4:00 PM.\nFor admissions specifically, email: uietkc@jammuuniversity.ac.in.",
+        "is_active": true,
+        "created_at": "2026-05-11T03:05:11.386Z",
+        "updated_at": "2026-05-19T17:22:15.564Z"
+    }
+},
+{
+    "model": "chatbot.collegeknowledge",
+    "pk": 5,
+    "fields": {
+        "category": "courses",
+        "topic": "B.Tech Civil Engineering",
+        "information": "Program: B.Tech Civil Engineering.\nDuration: 4 years (8 semesters).\nTotal Seats: 60 (2026-27).\nSeat Split: 48 seats for JU jurisdiction students (80%), 12 seats open (20%).\nEligibility: 10+2 with Physics, Chemistry, Mathematics (PCM).\nEntrance: Valid JEE Mains 2026 score required for Round 1.\nSubjects include: Structural Engineering, Fluid Mechanics, Construction, Surveying, and more.\nDegree awarded by University of Jammu.",
+        "is_active": true,
+        "created_at": "2026-05-11T03:05:11.406Z",
+        "updated_at": "2026-05-19T17:22:15.581Z"
+    }
+},
+{
+    "model": "chatbot.collegeknowledge",
+    "pk": 4,
+    "fields": {
+        "category": "courses",
+        "topic": "B.Tech CSE (Computer Science Engineering)",
+        "information": "Program: B.Tech Computer Science Engineering (CSE).\nDuration: 4 years (8 semesters).\nTotal Seats: 60 (2026-27).\nSeat Split: 48 seats for JU jurisdiction students (80%), 12 seats open (20%).\nEligibility: 10+2 with Physics, Chemistry, Mathematics (PCM).\nEntrance: Valid JEE Mains 2026 score required for Round 1.\nSubjects include: Programming, Data Structures, DBMS, AI, Networks, Web Development, and more.\nDegree awarded by University of Jammu.",
+        "is_active": true,
+        "created_at": "2026-05-11T03:05:11.396Z",
+        "updated_at": "2026-05-19T17:22:15.573Z"
+    }
+},
+{
+    "model": "chatbot.collegeknowledge",
+    "pk": 17,
+    "fields": {
+        "category": "courses",
+        "topic": "B.Tech ECE (Electronics and Communication Engineering)",
+        "information": "Program: B.Tech Electronics and Communication Engineering (ECE).\nDuration: 4 years (8 semesters).\nTotal Seats: 60 (2026-27).\nSeat Split: 48 seats for JU jurisdiction students (80%), 12 seats open (20%).\nEligibility: 10+2 with Physics, Chemistry, Mathematics (PCM).\nEntrance: Valid JEE Mains 2026 score required for Round 1.\nSubjects include: Electronics, Communication Systems, Signal Processing, VLSI, Embedded Systems, and more.\nDegree awarded by University of Jammu.",
+        "is_active": true,
+        "created_at": "2026-05-18T07:58:26.678Z",
+        "updated_at": "2026-05-19T17:22:15.588Z"
     }
 },
 {
@@ -113,70 +137,22 @@
     "fields": {
         "category": "eligibility",
         "topic": "Eligibility for B.Tech Programs",
-        "information": "Minimum Qualification: 10+2 or equivalent from a recognized board.\nRequired Subjects: Physics, Chemistry, and Mathematics (PCM).\nMinimum Marks: 50% aggregate in PCM (45% for SC/ST candidates).\nEntrance Exam: Valid JEE Main score is mandatory.\nAge Limit: As per JEE Main norms (generally 17 years minimum).\nDomicile: J&K domicile certificate may be required for state quota seats.",
+        "information": "Minimum Qualification: 10+2 or equivalent from a recognized board.\nRequired Subjects: Physics, Chemistry, and Mathematics (PCM).\nEntrance Exam (Round 1): Valid JEE Mains 2026 score is mandatory.\nRound 2 (if applicable): Valid CUET UG score.\nRound 3 (if applicable): 10+2 / Higher Secondary marks.\nDomicile: J&K Domicile Certificate required.\nCategory Certificate required for SC/ST/OBC/EWS/PWD candidates.",
         "is_active": true,
         "created_at": "2026-05-11T03:05:11.445Z",
-        "updated_at": "2026-05-11T03:05:11.445Z"
+        "updated_at": "2026-05-19T17:22:15.659Z"
     }
 },
 {
     "model": "chatbot.collegeknowledge",
-    "pk": 11,
+    "pk": 22,
     "fields": {
         "category": "eligibility",
-        "topic": "Required Documents for Admission",
-        "information": "1. 10th Class Marksheet and Certificate.\n2. 12th Class (10+2) Marksheet and Certificate.\n3. JEE Main Scorecard.\n4. Character Certificate from last institution.\n5. Migration Certificate (if applicable).\n6. Category Certificate (SC/ST/OBC) if applicable.\n7. J&K Domicile Certificate.\n8. Recent Passport-size Photographs (at least 6).\n9. Aadhar Card / ID Proof.\n10. Medical Fitness Certificate.",
+        "topic": "Required Documents for Application",
+        "information": "Documents required at the time of applying (2026-27):\n1. 10th Class Marksheet.\n2. 12th Class (10+2) Marksheet.\n3. JEE Mains 2026 Score Card (mandatory for Round 1).\n4. Date of Birth Certificate.\n5. Domicile Certificate (J&K).\n6. Category Certificate (SC/ST/OBC/EWS/PWD) — if applicable.\n7. Proof of Fee Payment (Bank receipt of Rs. 1,500/-).\n8. Passport-size Photograph and Signature.\n\nAdditional documents required for shortlisted candidates at the time of counseling:\n- Achievement Category Documents (if applicable).\n- Medical Fitness Certificate.\n- Migration Certificate (if applicable).",
         "is_active": true,
-        "created_at": "2026-05-11T03:05:11.452Z",
-        "updated_at": "2026-05-11T03:05:11.452Z"
-    }
-},
-{
-    "model": "chatbot.collegeknowledge",
-    "pk": 12,
-    "fields": {
-        "category": "fees",
-        "topic": "Fee Structure",
-        "information": "The exact fee structure is notified at the time of admission.\nFee categories include: Tuition Fee, Development Fee, Exam Fee, and other charges.\nFee concessions are available for SC/ST and economically weaker section students.\nScholarships like Reliance Foundation, J&K State Scholarship, and Post-Matric Scholarship are available for eligible students.\nFor exact fee details, contact the admission office or check official notifications.",
-        "is_active": true,
-        "created_at": "2026-05-11T03:05:11.460Z",
-        "updated_at": "2026-05-11T03:05:11.460Z"
-    }
-},
-{
-    "model": "chatbot.collegeknowledge",
-    "pk": 13,
-    "fields": {
-        "category": "facilities",
-        "topic": "Campus Facilities",
-        "information": "UIET campus offers:\n• Well-equipped computer labs with high-speed internet.\n• Modern class rooms and seminar halls.\n• Central library with large collection of books and journals.\n• Sports facilities including outdoor courts.\n• Canteen/cafeteria on campus.\n• Wi-Fi enabled campus.\n• Separate hostel facilities (boys and girls).\n• Medical room for first aid.\n• ATM facility nearby.",
-        "is_active": true,
-        "created_at": "2026-05-11T03:05:11.467Z",
-        "updated_at": "2026-05-11T03:05:11.467Z"
-    }
-},
-{
-    "model": "chatbot.collegeknowledge",
-    "pk": 14,
-    "fields": {
-        "category": "hostel",
-        "topic": "Hostel Facilities",
-        "information": "Hostel accommodation is available for both boys and girls on the University of Jammu campus.\nFacilities include: Furnished rooms, common room, mess facility, Wi-Fi, and 24-hour security.\nHostel allotment is done on availability basis and merit.\nFor hostel enquiries, contact the University of Jammu hostel office directly.",
-        "is_active": true,
-        "created_at": "2026-05-11T03:05:11.480Z",
-        "updated_at": "2026-05-11T03:05:11.480Z"
-    }
-},
-{
-    "model": "chatbot.collegeknowledge",
-    "pk": 15,
-    "fields": {
-        "category": "placement",
-        "topic": "Placement & Career",
-        "information": "UIET has a Training & Placement cell that helps students with career guidance.\nCompanies from IT, construction, and government sectors visit for campus placements.\nStudents are encouraged to participate in internships, workshops, and hackathons.\nHigher studies (M.Tech, MBA, M.Sc) are also pursued by many graduates.\nGovernment job preparation (JKSSB, UPSC, SSC) support is also available.",
-        "is_active": true,
-        "created_at": "2026-05-11T03:05:11.488Z",
-        "updated_at": "2026-05-11T03:05:11.488Z"
+        "created_at": "2026-05-18T07:58:26.763Z",
+        "updated_at": "2026-05-19T17:22:15.669Z"
     }
 },
 {
@@ -185,10 +161,106 @@
     "fields": {
         "category": "exam",
         "topic": "Examination Pattern",
-        "information": "University of Jammu conducts semester-wise examinations.\nEach semester has: Internal Assessment (30 marks) + End Semester Exam (70 marks).\nMinimum passing marks: 40% in each subject.\nStudents must maintain 75% attendance to appear in examinations.\nResults are published on the University of Jammu official website.",
+        "information": "University of Jammu conducts semester-wise examinations.\nEach semester has: Internal Assessment (30 marks) + End Semester Exam (70 marks).\nMinimum passing marks: 40% in each subject.\nStudents must maintain 75% attendance to appear in examinations.\nResults are published on the University of Jammu official website.\nTime tables are published on the UIET website (uiet.kathuacampus.in).",
         "is_active": true,
         "created_at": "2026-05-11T03:05:11.495Z",
-        "updated_at": "2026-05-11T03:05:11.495Z"
+        "updated_at": "2026-05-19T17:22:15.732Z"
+    }
+},
+{
+    "model": "chatbot.collegeknowledge",
+    "pk": 13,
+    "fields": {
+        "category": "facilities",
+        "topic": "Campus Facilities",
+        "information": "UIET Kathua Campus offers:\n• Well-equipped computer labs with high-speed internet.\n• Modern classrooms and seminar halls.\n• Central library with books, journals, and eLibrary access.\n• Sports facilities including outdoor courts.\n• Canteen/cafeteria on campus.\n• Wi-Fi enabled campus.\n• Girls hostel (inaugurated and operational).\n• 3D Printing facility (installed 2025).\n• NCC unit on campus.\n• Science Club, Community Service Club, and more.",
+        "is_active": true,
+        "created_at": "2026-05-11T03:05:11.467Z",
+        "updated_at": "2026-05-19T17:22:15.702Z"
+    }
+},
+{
+    "model": "chatbot.collegeknowledge",
+    "pk": 23,
+    "fields": {
+        "category": "fees",
+        "topic": "Application Fee 2026-27",
+        "information": "Application Fee for UIET Admission 2026-27:\n• Without late fee: Rs. 1,500/- (deadline: 24 May 2026).\n• With late fee: Rs. 1,610/- (Rs. 1,500 + Rs. 110 late fee, deadline: 31 May 2026).\n\nPayment Method: Bank Transfer (NEFT/RTGS/IMPS).\nBank: J&K Bank Ltd., Patel Nagar, Kathua.\nAccount Number: 0345040500000175.\nIFSC Code: JAKA0REVENU.\nAccount Holder: Co-ordinator UIET, University of Jammu.\n\nKeep the payment receipt/transaction proof as it must be uploaded with the application.",
+        "is_active": true,
+        "created_at": "2026-05-18T07:58:26.770Z",
+        "updated_at": "2026-05-19T17:22:15.678Z"
+    }
+},
+{
+    "model": "chatbot.collegeknowledge",
+    "pk": 24,
+    "fields": {
+        "category": "fees",
+        "topic": "Bank Details for Fee Payment",
+        "information": "To pay the UIET 2026-27 application fee, use the following bank details:\nAccount Holder: Co-ordinator UIET, University of Jammu.\nBank: J&K Bank Ltd.\nBranch: Patel Nagar, Kathua.\nAccount Number: 0345040500000175.\nIFSC Code: JAKA0REVENU.\nAmount: Rs. 1,500/- (before 24 May 2026) or Rs. 1,610/- (before 31 May 2026).\nAfter payment, keep the transaction receipt and upload it in the application form.",
+        "is_active": true,
+        "created_at": "2026-05-18T07:58:26.778Z",
+        "updated_at": "2026-05-19T17:22:15.690Z"
+    }
+},
+{
+    "model": "chatbot.collegeknowledge",
+    "pk": 1,
+    "fields": {
+        "category": "general",
+        "topic": "About UIET",
+        "information": "UIET (University Institute of Engineering & Technology) Kathua Campus is a premier engineering college under the University of Jammu, Jammu & Kashmir, India. It is located at Kathua Campus, University of Jammu. The college motto is: \"Through study and teaching, one attains the nectar of knowledge.\" It offers B.Tech undergraduate programs in CSE, Civil Engineering, and ECE with a focus on academic excellence and holistic development. Total intake: 180 seats (60 per program).",
+        "is_active": true,
+        "created_at": "2026-05-11T03:05:11.359Z",
+        "updated_at": "2026-05-19T17:22:15.529Z"
+    }
+},
+{
+    "model": "chatbot.collegeknowledge",
+    "pk": 2,
+    "fields": {
+        "category": "general",
+        "topic": "College Location",
+        "information": "UIET is located at Kathua Campus, University of Jammu, Kathua, Jammu & Kashmir. Phone: 01922-297470. Email: uietkc@jammuuniversity.ac.in. It is easily accessible by road and well-connected to Kathua city.",
+        "is_active": true,
+        "created_at": "2026-05-11T03:05:11.376Z",
+        "updated_at": "2026-05-19T17:22:15.555Z"
+    }
+},
+{
+    "model": "chatbot.collegeknowledge",
+    "pk": 25,
+    "fields": {
+        "category": "general",
+        "topic": "Faculty Members",
+        "information": "UIET Kathua Campus Faculty Members (Source: uiet.kathuacampus.in/faculty.php):\n\nCOMPUTER SCIENCE DEPARTMENT:\n1. Er. Jewan Jot — M.Tech in CS. Specialises in Python and IoT. Tenuring since October 2023.\n2. Er. Puneet Kour — M.Tech in CS. Areas: Deep Learning, Networking, AI. Subjects: Theory of Computation, Algorithms, Data Structures, Python. Tenuring since August 2023.\n3. Er. Meetu Sharma — M.Tech CS/IT. Areas: Cyber Security, Java, Machine Learning, Web Designing, CCNA. Tenuring since January 2025.\n4. Er. Akanksha Bali — M.Tech; GATE, NET qualified. Pursuing Ph.D. (Deep Learning for eye disease). 4+ years teaching, 15+ publications. Tenuring since August 2025.\n5. Er. Rakshit Khajuria — M.Tech; pursuing Ph.D. from LPU. 6+ years experience. Research: Software Engineering, AI. Tenuring since September 2024.\n\nCIVIL ENGINEERING DEPARTMENT:\n6. Er. Sandeep Raj — M.Tech in Geotech; GATE qualified. Areas: Foundation, Retaining Wall Design, Soil Investigation. Tenuring since August 2018.\n7. Er. Arjun Kapoor — M.Tech in Geotech. Areas: Soil Mechanics, Highway Engineering, Survey. Tenuring since August 2023.\n8. Er. Vishavjeet Singh — M.Tech in Structure. Area: Structural Engineering. Tenuring since July 2022.\n9. Er. Pallvi Verma — M.Tech in Environment. Areas: Environmental Impact, Pollution Control, Waste Management, Green Building. Tenuring since November 2021.\n10. Er. Sushant Gagal — M.Tech in Structure; GATE qualified. Areas: Structural Analysis, RCC Design, Geotechnical Engineering. Tenuring since August 2018.\n11. Er. Sourav Gupta — M.Tech in Industrial Production; GATE qualified. Subjects: Engineering Graphics, Structural Analysis. Tenuring since February 2023.\n12. Er. Karan Kumar Quanth — M.Tech in Structure. Subjects: Survey, Building Materials, Fluid Mechanics, Structural Engineering. Tenuring since August 2023.\n\nECE DEPARTMENT:\n13. Er. Javaid Ahmad Rather — M.Tech in ECE; GATE, NET-JRF qualified. Pursuing Ph.D. at IIT Jammu. Research: Microwave Antennas, RF/Microwave Engineering, Next-Gen Wireless Systems. Appointed April 2025.\n\nOTHER/SCIENCE DEPARTMENTS:\n14. Er. Akhil Kumar — M.Tech; GATE qualified. Focuses on critical thinking and innovation. Appointed April 2025.\n15. Dr. Nisha Choudhary — Ph.D. Chemistry. Teaches Basic Engineering Chemistry. Tenuring since August 2022.\n16. Dr. Seema Jamwal — Ph.D. Research: Functional Analysis, Sequence Spaces. Tenuring since September 2017.\n17. Dr. Veerta Rani — Ph.D. Theoretical Nuclear Physics; GATE, SET qualified. Teaches Engineering Physics. Tenuring since August 2025.\n18. Dr. Vivudh Gupta — Ph.D. Mechanical Engineering; GATE qualified. Research: Mechanical Testing, Tribology, Advanced Machining, Industry 4.0. Tenuring since September 2024.\n19. Dr. Mahesh Koul — Post Doc. Specialises in Management, Heritage Tourism, Kashmir Shaivism. Author and researcher. Tenuring since October 2024.\n20. Er. Ritika Gupta — MBA (HR and Marketing). Teaches Management subjects. Tenuring since April 2022.\n21. Dr. Reemani Verma — Ph.D.; SET qualified. Teaches Literature, Language, Communication Skills. Research: Tribal Historiography, Feminism. Tenuring since August 2025.\n22. Dr. Arjamand Beigh — Ph.D. Thermal Engineering. 8+ years teaching experience. Tenuring since August 2025.\n\nFor the complete and updated faculty list, visit: https://uiet.kathuacampus.in/faculty.php",
+        "is_active": true,
+        "created_at": "2026-05-18T08:14:37.818Z",
+        "updated_at": "2026-05-18T08:14:37.818Z"
+    }
+},
+{
+    "model": "chatbot.collegeknowledge",
+    "pk": 14,
+    "fields": {
+        "category": "hostel",
+        "topic": "Hostel Facilities",
+        "information": "Girls Hostel is available on the UIET Kathua Campus (inaugurated in 2024).\nFacilities include: Furnished rooms, mess facility, Wi-Fi, and security.\nFor hostel enquiries, contact the UIET Kathua Campus directly.\nPhone: 01922-297470. Email: uietkc@jammuuniversity.ac.in.",
+        "is_active": true,
+        "created_at": "2026-05-11T03:05:11.480Z",
+        "updated_at": "2026-05-19T17:22:15.712Z"
+    }
+},
+{
+    "model": "chatbot.collegeknowledge",
+    "pk": 15,
+    "fields": {
+        "category": "placement",
+        "topic": "Placement & Career",
+        "information": "UIET Kathua Campus has a Training & Placement cell.\nStudents have secured internships in top IT and Civil Engineering organizations.\nStudents are encouraged to participate in internships, workshops, and hackathons.\nNational-level programs: AICTE internship portal (internship.aicte-india.org) and AICTE career portal.\nStudents have won medals in Inter-College Boxing and other sports championships.\nHigher studies (M.Tech, MBA) and government jobs (JKSSB, UPSC) are common career paths.",
+        "is_active": true,
+        "created_at": "2026-05-11T03:05:11.488Z",
+        "updated_at": "2026-05-19T17:22:15.722Z"
     }
 }
 ]
