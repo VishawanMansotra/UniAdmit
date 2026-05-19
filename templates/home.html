@@ -19,12 +19,12 @@
             <!-- Text — right on desktop, below logo on mobile -->
             <div class="col-12 col-md-7 fade-in-up text-center text-md-start">
                 <p class="text-warning fw-bold mb-2">
-                    <i class="fas fa-star me-1"></i>B.Tech Admissions 2026 Open
+                    <i class="fas fa-star me-1"></i>B.Tech Admissions 2026-27 Open — 60 Seats Per Program
                 </p>
-                <h1 class="display-4 fw-bold mb-3">Welcome to<br>UIETKathua Admission Portal</h1>
+                <h1 class="display-4 fw-bold mb-3">Welcome to<br>UIET Kathua Admission Portal</h1>
                 <p class="lead mb-4 opacity-90">
                     Your gateway to UIET, University of Jammu. Apply online for
-                    B.Tech programs in Computer Science &amp; Civil Engineering.
+                    B.Tech programs in Computer Science, Civil Engineering &amp; Electronics and Communication.
                 </p>
                 <div class="d-flex gap-3 flex-wrap justify-content-center justify-content-md-start">
                     <a href="/register/"
@@ -45,28 +45,41 @@
     <div class="container">
         <h2 class="section-title">Programs Offered</h2>
         <div class="row g-4 mt-2">
-            <div class="col-md-6">
-                <div class="card p-4 border-start border-primary border-4">
+            <div class="col-md-4">
+                <div class="card p-4 border-start border-primary border-4 h-100">
                     <div class="d-flex align-items-center">
                         <span class="bg-primary p-3 rounded me-3">
                             <i class="fas fa-laptop-code fa-2x text-white"></i>
                         </span>
                         <div>
                             <h5 class="fw-bold mb-1">B.Tech Computer Science</h5>
-                            <p class="text-muted mb-0">4 Year Full Time Program</p>
+                            <p class="text-muted mb-0">4 Year Full Time &bull; 60 Seats</p>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-6">
-                <div class="card p-4 border-start border-success border-4">
+            <div class="col-md-4">
+                <div class="card p-4 border-start border-success border-4 h-100">
                     <div class="d-flex align-items-center">
                         <span class="bg-success p-3 rounded me-3">
                             <i class="fas fa-hard-hat fa-2x text-white"></i>
                         </span>
                         <div>
                             <h5 class="fw-bold mb-1">B.Tech Civil Engineering</h5>
-                            <p class="text-muted mb-0">4 Year Full Time Program</p>
+                            <p class="text-muted mb-0">4 Year Full Time &bull; 60 Seats</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card p-4 border-start border-warning border-4 h-100">
+                    <div class="d-flex align-items-center">
+                        <span class="bg-warning p-3 rounded me-3">
+                            <i class="fas fa-microchip fa-2x text-white"></i>
+                        </span>
+                        <div>
+                            <h5 class="fw-bold mb-1">B.Tech Electronics &amp; Communication</h5>
+                            <p class="text-muted mb-0">4 Year Full Time &bull; 60 Seats</p>
                         </div>
                     </div>
                 </div>
@@ -75,14 +88,86 @@
     </div>
 </div>
 
-<!-- CTA Section -->
-<div class="container my-5">
-    <div class="card p-5 text-center" style="background: linear-gradient(135deg, #1a237e, #1565c0);">
-        <h3 class="text-white fw-bold mb-3">Ready to Begin Your Journey?</h3>
-        <p class="text-white opacity-75 mb-4">Join hundreds of students who have already applied through UniAdmit</p>
-        <a href="/register/" class="btn btn-warning text-dark fw-bold px-5 py-2">
-            <i class="fas fa-rocket me-2"></i>Start Application
-        </a>
+<!-- Announcements & Results -->
+{% if published_results %}
+<div class="py-5" style="background: #eef2f3;">
+    <div class="container">
+        <h2 class="section-title text-danger"><i class="fas fa-bullhorn me-2"></i>Announcements & Results</h2>
+        <div class="row mt-4">
+            {% for result in published_results %}
+            <div class="col-md-6 mb-3">
+                <div class="card shadow-sm border-0 h-100" style="border-left: 4px solid #dc3545 !important;">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-1 text-dark fw-bold">{{ result.title }}</h5>
+                            <small class="text-muted"><i class="far fa-clock me-1"></i>Published: {{ result.uploaded_at|date:"d M Y, h:i A" }}</small>
+                        </div>
+                        <a href="{{ result.pdf_file.url }}" target="_blank" class="btn btn-danger btn-sm px-3">
+                            <i class="fas fa-download me-1"></i> Download PDF
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Important Dates Section -->
+<div class="py-5" style="background: #f8f9fa;">
+    <div class="container">
+        <h2 class="section-title">Important Dates — 2026-27</h2>
+        <div class="row g-4 mt-2">
+            <div class="col-md-3 col-sm-6">
+                <div class="card text-center p-4 h-100 border-0 shadow-sm">
+                    <div class="mb-3">
+                        <span class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center" style="width:56px;height:56px;">
+                            <i class="fas fa-door-open fa-lg text-white"></i>
+                        </span>
+                    </div>
+                    <h6 class="fw-bold text-muted mb-1">Applications Open</h6>
+                    <h5 class="fw-bold text-primary mb-0">11 May 2026</h5>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="card text-center p-4 h-100 border-0 shadow-sm">
+                    <div class="mb-3">
+                        <span class="bg-success rounded-circle d-inline-flex align-items-center justify-content-center" style="width:56px;height:56px;">
+                            <i class="fas fa-calendar-check fa-lg text-white"></i>
+                        </span>
+                    </div>
+                    <h6 class="fw-bold text-muted mb-1">Last Date (No Late Fee)</h6>
+                    <h5 class="fw-bold text-success mb-0">24 May 2026</h5>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="card text-center p-4 h-100 border-0 shadow-sm">
+                    <div class="mb-3">
+                        <span class="bg-warning rounded-circle d-inline-flex align-items-center justify-content-center" style="width:56px;height:56px;">
+                            <i class="fas fa-exclamation-triangle fa-lg text-white"></i>
+                        </span>
+                    </div>
+                    <h6 class="fw-bold text-muted mb-1">Last Date (+ ₹110 Late Fee)</h6>
+                    <h5 class="fw-bold text-warning mb-0">31 May 2026</h5>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="card text-center p-4 h-100 border-0 shadow-sm">
+                    <div class="mb-3">
+                        <span class="bg-danger rounded-circle d-inline-flex align-items-center justify-content-center" style="width:56px;height:56px;">
+                            <i class="fas fa-list-ol fa-lg text-white"></i>
+                        </span>
+                    </div>
+                    <h6 class="fw-bold text-muted mb-1">Selection List Published</h6>
+                    <h5 class="fw-bold text-danger mb-0">02 Jun 2026</h5>
+                </div>
+            </div>
+        </div>
+        <p class="text-muted text-center mt-4 mb-0" style="font-size: 0.9rem;">
+            <i class="fas fa-info-circle me-1"></i>
+            Round 1 admissions are based on <strong>JEE Mains 2026</strong> merit. Separate notifications will be issued for CUET and 10+2 based rounds.
+        </p>
     </div>
 </div>
 

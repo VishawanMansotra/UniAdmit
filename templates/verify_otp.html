@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% block title %}Verify OTP - UniAdmit{% endblock %}
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card shadow-lg border-0" style="border-radius: 16px; overflow: hidden;">
+
+                <!-- Header -->
+                <div class="card-header text-white text-center py-4" style="background: linear-gradient(135deg, #1a237e, #1565c0);">
+                    <div class="mb-3">
+                        <span style="font-size: 3rem;">📧</span>
+                    </div>
+                    <h4 class="fw-bold mb-1">Verify Your Email</h4>
+                    <p class="mb-0 opacity-75" style="font-size: 0.9rem;">We sent a 6-digit OTP to your inbox</p>
+                </div>
+
+                <div class="card-body p-4">
+
+                    <!-- Messages -->
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    {% endfor %}
+
+                    <!-- Info Box -->
+                    <div class="alert alert-info d-flex align-items-center gap-2 mb-4" role="alert">
+                        <i class="fas fa-info-circle fs-5"></i>
+                        <div>
+                            OTP sent to <strong>{{ email }}</strong><br>
+                            <small class="text-muted">Valid for <strong>5 minutes</strong>. Check your spam folder if not received.</small>
+                        </div>
+                    </div>
+
+                    <!-- OTP Form -->
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-center w-100" style="color: #1a237e;">Enter 6-Digit OTP</label>
+                            <input
+                                type="text"
+                                name="otp"
+                                id="otp-input"
+                                class="form-control form-control-lg text-center fw-bold"
+                                maxlength="6"
+                                placeholder="— — — — — —"
+                                autocomplete="one-time-code"
+                                inputmode="numeric"
+                                pattern="[0-9]{6}"
+                                required
+                                autofocus
+                                style="font-size: 2rem; letter-spacing: 12px; border: 2px solid #1a237e; border-radius: 12px;"
+                            >
+                        </div>
+
+                        <!-- Countdown Timer -->
+                        <div class="text-center mb-3">
+                            <small class="text-muted">OTP expires in <span id="countdown" class="fw-bold text-danger">05:00</span></small>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-lg fw-bold py-2" style="background: linear-gradient(135deg, #1a237e, #1565c0); color: white; border-radius: 10px; border: none;">
+                                <i class="fas fa-check-circle me-2"></i>Verify OTP
+                            </button>
+                            <a href="{% url 'register' %}" class="btn btn-outline-secondary btn-lg py-2" style="border-radius: 10px;">
+                                <i class="fas fa-arrow-left me-2"></i>Go Back & Re-register
+                            </a>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Footer note -->
+                <div class="card-footer text-center py-3 bg-light">
+                    <small class="text-muted">
+                        <i class="fas fa-shield-alt me-1 text-success"></i>
+                        Your data is secure. OTP is for verification only.
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Countdown timer script -->
+<script>
+(function() {
+    let totalSeconds = 300;
+    const el = document.getElementById('countdown');
+    const submitBtn = document.querySelector('button[type="submit"]');
+
+    function updateTimer() {
+        if (totalSeconds <= 0) {
+            el.textContent = 'Expired';
+            el.className = 'fw-bold text-danger';
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'OTP Expired — Go Back & Re-register';
+            return;
+        }
+        const m = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
+        const s = String(totalSeconds % 60).padStart(2, '0');
+        el.textContent = m + ':' + s;
+        if (totalSeconds <= 60) el.className = 'fw-bold text-danger';
+        else el.className = 'fw-bold text-warning';
+        totalSeconds--;
+        setTimeout(updateTimer, 1000);
+    }
+    updateTimer();
+
+    // Auto-submit when 6 digits are entered
+    document.getElementById('otp-input').addEventListener('input', function() {
+        if (this.value.length === 6) {
+            this.closest('form').submit();
+        }
+    });
+})();
+</script>
+{% endblock %}

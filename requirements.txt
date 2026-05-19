@@ -8,3 +8,4 @@ whitenoise[brotli]
 dj-database-url
 python-dotenv
 google-generativeai
+pyotp>=2.9,<3.0

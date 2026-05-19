@@ -306,13 +306,5 @@ footer {
     .stat-card h2 { font-size: 1.8rem; }
 }
 
-/* ===== REMARKS BOXES (my_applications.html) ===== */
-.remarks-approved {
-    background: #e8f5e9;
-    border-left: 4px solid #2e7d32;
-}
 
-.remarks-rejected {
-    background: #ffebee;
-    border-left: 4px solid #b71c1c;
-}
+

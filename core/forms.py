@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
+from django.conf import settings
 from .models import StudentProfile
 
 
@@ -9,17 +10,24 @@ class StudentRegistrationForm(forms.Form):
     first_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={
         'class': 'form-control', 'placeholder': 'Enter First Name'
     }))
-    last_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={
+    middle_name = forms.CharField(max_length=100, required=False, widget=forms.TextInput(attrs={
+        'class': 'form-control', 'placeholder': 'Enter Middle Name'
+    }))
+    last_name = forms.CharField(max_length=100, required=False, widget=forms.TextInput(attrs={
         'class': 'form-control', 'placeholder': 'Enter Last Name'
     }))
+    gender = forms.ChoiceField(
+        choices=[('', 'Select Gender'), ('Male', 'Male'), ('Female', 'Female'), ('Other', 'Other')],
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
     email = forms.EmailField(widget=forms.EmailInput(attrs={
         'class': 'form-control', 'placeholder': 'Enter Email'
     }))
-    phone = forms.CharField(max_length=15, widget=forms.TextInput(attrs={
+    phone = forms.CharField(max_length=10, widget=forms.TextInput(attrs={
         'class': 'form-control', 'placeholder': 'Enter Phone Number'
     }))
     date_of_birth = forms.DateField(widget=forms.DateInput(attrs={
-        'class': 'form-control', 'type': 'date'
+        'class': 'form-control', 'type': 'date', 'min': '2000-01-01', 'max': '2025-12-31'
     }))
     address = forms.CharField(widget=forms.Textarea(attrs={
         'class': 'form-control', 'placeholder': 'Enter Address', 'rows': 3
@@ -30,10 +38,20 @@ class StudentRegistrationForm(forms.Form):
     confirm_password = forms.CharField(widget=forms.PasswordInput(attrs={
         'class': 'form-control', 'placeholder': 'Confirm Password'
     }))
-    photo = forms.ImageField(required=False, widget=forms.FileInput(attrs={
-        'class': 'form-control'
-    }))
 
+
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email', '').strip().lower()
+        allowed_domains = getattr(settings, 'ALLOWED_EMAIL_DOMAINS', [])
+        if allowed_domains:
+            domain = email.split('@')[-1]
+            if domain not in allowed_domains:
+                raise forms.ValidationError(
+                    f"Email domain '@{domain}' is not allowed. "
+                    f"Please use: {', '.join(allowed_domains)}"
+                )
+        return email
 
 # ─── Feature 1: Profile Edit ──────────────────────────────────────────────────
 
@@ -41,21 +59,22 @@ class ProfileEditForm(forms.Form):
     first_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={
         'class': 'form-control', 'placeholder': 'First Name'
     }))
-    last_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={
+    middle_name = forms.CharField(max_length=100, required=False, widget=forms.TextInput(attrs={
+        'class': 'form-control', 'placeholder': 'Middle Name'
+    }))
+    last_name = forms.CharField(max_length=100, required=False, widget=forms.TextInput(attrs={
         'class': 'form-control', 'placeholder': 'Last Name'
     }))
-    phone = forms.CharField(max_length=15, widget=forms.TextInput(attrs={
+    phone = forms.CharField(max_length=10, widget=forms.TextInput(attrs={
         'class': 'form-control', 'placeholder': 'Phone Number'
     }))
     date_of_birth = forms.DateField(widget=forms.DateInput(attrs={
-        'class': 'form-control', 'type': 'date'
+        'class': 'form-control', 'type': 'date', 'min': '2000-01-01', 'max': '2025-12-31'
     }))
     address = forms.CharField(widget=forms.Textarea(attrs={
         'class': 'form-control', 'rows': 3, 'placeholder': 'Address'
     }))
-    photo = forms.ImageField(required=False, widget=forms.FileInput(attrs={
-        'class': 'form-control'
-    }))
+
 
 
 # ─── Feature 8: Course Management Form ───────────────────────────────────────
@@ -77,19 +96,45 @@ class CourseForm(forms.Form):
     }))
 
 
+# ─── Feature: Admission Round & Merit List Forms ─────────────────────────────
+
+from .models import AdmissionRound, MeritListPDF
+
+class AdmissionRoundForm(forms.ModelForm):
+    class Meta:
+        model = AdmissionRound
+        fields = ['current_round']
+        widgets = {
+            'current_round': forms.Select(attrs={'class': 'form-select form-select-lg shadow-sm'})
+        }
+
+class MeritListPDFForm(forms.ModelForm):
+    class Meta:
+        model = MeritListPDF
+        fields = ['title', 'pdf_file', 'is_published']
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., Round 1 - CSE Merit List'}),
+            'pdf_file': forms.FileInput(attrs={'class': 'form-control', 'accept': '.pdf'}),
+            'is_published': forms.CheckboxInput(attrs={'class': 'form-check-input'})
+        }
+
+
 # ─── Existing (Updated): Application Form with dynamic course choices ─────────
 
 class ApplicationForm(forms.Form):
     DEFAULT_PROGRAM_CHOICES = [
         ('CSE', 'B.Tech Computer Science Engineering'),
         ('CIVIL', 'B.Tech Civil Engineering'),
+        ('ECE', 'B.Tech Electronics and Communication Engineering'),
     ]
     GENDER_CHOICES = [
+        ('', 'Select Gender'),
         ('Male', 'Male'),
         ('Female', 'Female'),
         ('Other', 'Other'),
     ]
     CATEGORY_CHOICES = [
+        ('', 'Select Category'),
         ('General', 'General'),
         ('OBC', 'OBC'),
         ('SC', 'SC'),
@@ -107,16 +152,37 @@ class ApplicationForm(forms.Form):
         choices=[],
         widget=forms.Select(attrs={'class': 'form-select'})
     )
+    preference3 = forms.ChoiceField(
+        choices=[],
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
 
     # Exam Scores
-    jee_score = forms.FloatField(required=False, widget=forms.NumberInput(attrs={
-        'class': 'form-control', 'placeholder': 'Enter JEE Main Score'
+    jee_score = forms.DecimalField(max_digits=10, decimal_places=7, max_value=100, min_value=0, required=False, widget=forms.NumberInput(attrs={
+        'class': 'form-control', 'placeholder': 'Enter JEE Main Score', 'min': '0', 'max': '100', 'step': '0.0000001'
     }))
-    cuet_score = forms.FloatField(required=False, widget=forms.NumberInput(attrs={
-        'class': 'form-control', 'placeholder': 'Enter CUET Score'
+    cuet_score = forms.DecimalField(max_digits=10, decimal_places=7, max_value=100, min_value=0, required=False, widget=forms.NumberInput(attrs={
+        'class': 'form-control', 'placeholder': 'Enter CUET Score', 'min': '0', 'max': '100', 'step': '0.0000001'
     }))
+    board_percentage = forms.DecimalField(
+        max_digits=5, decimal_places=2, max_value=100, min_value=0,
+        required=False,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control', 'placeholder': 'Enter Overall 10+2 Percentage (e.g. 85.50)', 'min': '0', 'max': '100', 'step': '0.01'
+        })
+    )
 
     # Personal
+    first_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={
+        'class': 'form-control', 'placeholder': 'Enter First Name'
+    }))
+    middle_name = forms.CharField(max_length=100, required=False, widget=forms.TextInput(attrs={
+        'class': 'form-control', 'placeholder': 'Enter Middle Name'
+    }))
+    last_name = forms.CharField(max_length=100, required=False, widget=forms.TextInput(attrs={
+        'class': 'form-control', 'placeholder': 'Enter Last Name'
+    }))
     father_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={
         'class': 'form-control', 'placeholder': 'Enter Father Name'
     }))
@@ -127,14 +193,14 @@ class ApplicationForm(forms.Form):
         'class': 'form-select'
     }))
     date_of_birth = forms.DateField(widget=forms.DateInput(attrs={
-        'class': 'form-control', 'type': 'date'
+        'class': 'form-control', 'type': 'date', 'min': '2000-01-01', 'max': '2025-12-31'
     }))
     category = forms.ChoiceField(choices=CATEGORY_CHOICES, widget=forms.Select(attrs={
         'class': 'form-select'
     }))
 
     # Contact
-    phone = forms.CharField(max_length=15, widget=forms.TextInput(attrs={
+    phone = forms.CharField(max_length=10, widget=forms.TextInput(attrs={
         'class': 'form-control', 'placeholder': 'Enter Phone Number'
     }))
     correspondence_address = forms.CharField(widget=forms.Textarea(attrs={
@@ -145,22 +211,24 @@ class ApplicationForm(forms.Form):
         'class': 'form-control', 'rows': 3,
         'placeholder': 'Enter Permanent Address'
     }))
-    is_jk_resident = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={
-        'class': 'form-check-input'
-    }))
+    is_jk_resident = forms.TypedChoiceField(
+        choices=[('', 'Select Option'), ('True', 'Yes'), ('False', 'No')],
+        coerce=lambda x: x == 'True',
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
 
     # Academic
     physics_marks = forms.FloatField(widget=forms.NumberInput(attrs={
-        'class': 'form-control', 'placeholder': 'Marks obtained'
+        'class': 'form-control', 'placeholder': 'Marks obtained', 'min': '0', 'step': 'any'
     }))
     chemistry_marks = forms.FloatField(widget=forms.NumberInput(attrs={
-        'class': 'form-control', 'placeholder': 'Marks obtained'
+        'class': 'form-control', 'placeholder': 'Marks obtained', 'min': '0', 'step': 'any'
     }))
     math_marks = forms.FloatField(widget=forms.NumberInput(attrs={
-        'class': 'form-control', 'placeholder': 'Marks obtained'
+        'class': 'form-control', 'placeholder': 'Marks obtained', 'min': '0', 'step': 'any'
     }))
     max_marks = forms.FloatField(widget=forms.NumberInput(attrs={
-        'class': 'form-control', 'placeholder': 'Maximum marks per subject'
+        'class': 'form-control', 'placeholder': 'Maximum marks per subject', 'min': '0', 'step': 'any'
     }))
     board_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={
         'class': 'form-control', 'placeholder': 'e.g. JKBOSE, CBSE'
@@ -169,28 +237,148 @@ class ApplicationForm(forms.Form):
         'class': 'form-control', 'placeholder': 'Enter School/College Name'
     }))
 
-    # Documents
-    marksheet_10th = forms.FileField(widget=forms.FileInput(attrs={'class': 'form-control'}))
-    marksheet_12th = forms.FileField(widget=forms.FileInput(attrs={'class': 'form-control'}))
+    # Documents — Personal
+    passport_photo = forms.ImageField(
+        widget=forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/jpeg,image/png,image/jpg'}),
+        help_text='Upload a recent passport-size photograph (JPG/PNG only).'
+    )
+    marksheet_10th = forms.FileField(widget=forms.FileInput(attrs={'class': 'form-control', 'accept': '.pdf,image/jpeg,image/png,image/jpg'}))
+    marksheet_12th = forms.FileField(widget=forms.FileInput(attrs={'class': 'form-control', 'accept': '.pdf,image/jpeg,image/png,image/jpg'}))
+    aadhar_card = forms.FileField(
+        widget=forms.FileInput(attrs={'class': 'form-control', 'accept': '.pdf,image/jpeg,image/png,image/jpg'}),
+        help_text='Upload scanned copy of Aadhar Card (PDF or Image).'
+    )
+    character_certificate = forms.FileField(
+        widget=forms.FileInput(attrs={'class': 'form-control', 'accept': '.pdf,image/jpeg,image/png,image/jpg'}),
+        help_text='Character certificate from last attended institution.'
+    )
     category_certificate = forms.FileField(
-        required=False, widget=forms.FileInput(attrs={'class': 'form-control'})
+        required=False, widget=forms.FileInput(attrs={'class': 'form-control', 'accept': '.pdf,image/jpeg,image/png,image/jpg'})
     )
     domicile_certificate = forms.FileField(
-        required=False, widget=forms.FileInput(attrs={'class': 'form-control'})
+        required=False, widget=forms.FileInput(attrs={'class': 'form-control', 'accept': '.pdf,image/jpeg,image/png,image/jpg'})
     )
-    signature = forms.ImageField(widget=forms.FileInput(attrs={'class': 'form-control'}))
+    migration_certificate = forms.FileField(
+        required=False, widget=forms.FileInput(attrs={'class': 'form-control', 'accept': '.pdf,image/jpeg,image/png,image/jpg'}),
+        help_text='Required only if passing board is outside J&K.'
+    )
+    signature = forms.ImageField(
+        widget=forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/jpeg,image/png,image/jpg'}),
+        help_text='Upload clear image of your signature on white paper (JPG/PNG only).'
+    )
+
+    # Documents — Score Verification
+    entrance_scorecard = forms.FileField(
+        required=False,
+        widget=forms.FileInput(attrs={'class': 'form-control', 'accept': '.pdf,image/jpeg,image/png,image/jpg'}),
+        help_text='Upload JEE / CUET scorecard (PDF or Image).'
+    )
+
+    def _validate_image_only(self, file, field_name):
+        """Raise validation error if file is not a JPG/PNG image."""
+        if file:
+            ext = file.name.rsplit('.', 1)[-1].lower()
+            if ext not in ['jpg', 'jpeg', 'png']:
+                raise forms.ValidationError('Only JPG and PNG image files are allowed. PDF is not accepted here.')
+
+    def _validate_doc_or_image(self, file):
+        """Raise validation error if file is not a PDF, JPG, or PNG."""
+        if file:
+            ext = file.name.rsplit('.', 1)[-1].lower()
+            if ext not in ['pdf', 'jpg', 'jpeg', 'png']:
+                raise forms.ValidationError('Only PDF, JPG, or PNG files are allowed.')
+
+    def clean_passport_photo(self):
+        f = self.cleaned_data.get('passport_photo')
+        self._validate_image_only(f, 'passport_photo')
+        return f
+
+    def clean_signature(self):
+        f = self.cleaned_data.get('signature')
+        self._validate_image_only(f, 'signature')
+        return f
+
+    def clean_marksheet_10th(self):
+        f = self.cleaned_data.get('marksheet_10th')
+        self._validate_doc_or_image(f)
+        return f
+
+    def clean_marksheet_12th(self):
+        f = self.cleaned_data.get('marksheet_12th')
+        self._validate_doc_or_image(f)
+        return f
+
+    def clean_aadhar_card(self):
+        f = self.cleaned_data.get('aadhar_card')
+        self._validate_doc_or_image(f)
+        return f
+
+    def clean_character_certificate(self):
+        f = self.cleaned_data.get('character_certificate')
+        self._validate_doc_or_image(f)
+        return f
+
+    def clean_category_certificate(self):
+        f = self.cleaned_data.get('category_certificate')
+        self._validate_doc_or_image(f)
+        return f
+
+    def clean_domicile_certificate(self):
+        f = self.cleaned_data.get('domicile_certificate')
+        self._validate_doc_or_image(f)
+        return f
+
+    def clean_migration_certificate(self):
+        f = self.cleaned_data.get('migration_certificate')
+        self._validate_doc_or_image(f)
+        return f
+
+    def clean_entrance_scorecard(self):
+        f = self.cleaned_data.get('entrance_scorecard')
+        self._validate_doc_or_image(f)
+        return f
+
+    def clean(self):
+        cleaned_data = super().clean()
+        
+        max_marks = cleaned_data.get('max_marks')
+        
+        if max_marks is not None:
+            physics_marks = cleaned_data.get('physics_marks')
+            chemistry_marks = cleaned_data.get('chemistry_marks')
+            math_marks = cleaned_data.get('math_marks')
+            
+            if physics_marks is not None and physics_marks > max_marks:
+                self.add_error('physics_marks', f'Physics marks cannot exceed maximum marks ({max_marks}).')
+            if chemistry_marks is not None and chemistry_marks > max_marks:
+                self.add_error('chemistry_marks', f'Chemistry marks cannot exceed maximum marks ({max_marks}).')
+            if math_marks is not None and math_marks > max_marks:
+                self.add_error('math_marks', f'Math marks cannot exceed maximum marks ({max_marks}).')
+                
+        return cleaned_data
 
     def __init__(self, *args, **kwargs):
+        current_round = kwargs.pop('current_round', 'round1_jee')
         super().__init__(*args, **kwargs)
-        # Feature 8: Load course choices dynamically from Course model
+        # Load course choices dynamically from Course model
         try:
             from .models import Course
             courses = Course.objects.filter(is_active=True)
             if courses.exists():
-                choices = [(c.code, c.name) for c in courses]
+                choices = [('', 'Select Preference')] + [(c.code, c.name) for c in courses]
             else:
-                choices = self.DEFAULT_PROGRAM_CHOICES
+                choices = [('', 'Select Preference')] + self.DEFAULT_PROGRAM_CHOICES
         except Exception:
-            choices = self.DEFAULT_PROGRAM_CHOICES
+            choices = [('', 'Select Preference')] + self.DEFAULT_PROGRAM_CHOICES
         self.fields['preference1'].choices = choices
         self.fields['preference2'].choices = choices
+        self.fields['preference3'].choices = choices
+
+        # Dynamically set which score field is required based on the active round
+        self.fields['jee_score'].required   = (current_round == 'round1_jee')
+        self.fields['cuet_score'].required  = (current_round == 'round2_cuet')
+        self.fields['board_percentage'].required = (current_round == 'round3_board')
+
+        # scorecard required for JEE and CUET rounds only
+        needs_entrance_docs = current_round in ('round1_jee', 'round2_cuet')
+        self.fields['entrance_scorecard'].required = needs_entrance_docs

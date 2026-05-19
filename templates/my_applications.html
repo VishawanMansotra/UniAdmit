@@ -25,7 +25,7 @@
                             <th>Preference 1</th>
                             <th>Preference 2</th>
                             <th>Applied On</th>
-                            <th>Status</th>
+
                             <th>Payment</th>
                             <th>Actions</th>
                         </tr>
@@ -47,15 +47,7 @@
                                 {% else %}{{ app.preference2 }}{% endif %}
                             </td>
                             <td>{{ app.applied_at|date:"d M Y" }}</td>
-                            <td>
-                                {% if app.status == 'Pending' %}
-                                    <span class="badge bg-warning text-dark">⏳ Pending</span>
-                                {% elif app.status == 'Approved' %}
-                                    <span class="badge bg-success">✅ Approved</span>
-                                {% else %}
-                                    <span class="badge bg-danger">❌ Rejected</span>
-                                {% endif %}
-                            </td>
+
                             <td>
                                 <div class="d-flex flex-column gap-1">
                                     <a href="/download-pdf/{{ app.id }}/"
@@ -98,21 +90,7 @@
                                 {% endif %}
                             </td>
                         </tr>
-                        <!-- Feature 3: Remarks row (shown only if remarks exist) -->
-                        {% if app.remarks and app.status != 'Pending' %}
-                        <tr>
-                            <td colspan="7">
-                                <div class="px-2 py-2 rounded
-                                     {% if app.status == 'Approved' %}remarks-approved{% else %}remarks-rejected{% endif %}">
-                                    <small>
-                                        <i class="fas fa-comment-dots me-1
-                                           {% if app.status == 'Approved' %}text-success{% else %}text-danger{% endif %}"></i>
-                                        <strong>Admin Remarks:</strong> {{ app.remarks }}
-                                    </small>
-                                </div>
-                            </td>
-                        </tr>
-                        {% endif %}
+
                         {% endfor %}
                     </tbody>
                 </table>

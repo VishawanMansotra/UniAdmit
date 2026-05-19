@@ -11,8 +11,8 @@
     </h3>
 
     <div class="row g-4">
-        <!-- Left Column -->
-        <div class="col-md-8">
+        <!-- Full Width Column -->
+        <div class="col-md-12">
 
             <!-- Personal Info -->
             <div class="card shadow mb-4">
@@ -20,19 +20,29 @@
                     <h5 class="mb-0"><i class="fas fa-user me-2"></i>Personal Information</h5>
                 </div>
                 <div class="card-body">
-                    <table class="table table-borderless">
-                        <tr><td><strong>Full Name:</strong></td><td>{{ application.student.get_full_name }}</td></tr>
-                        <tr><td><strong>Email:</strong></td><td>{{ application.student.email }}</td></tr>
-                        <tr><td><strong>Father's Name:</strong></td><td>{{ application.father_name }}</td></tr>
-                        <tr><td><strong>Mother's Name:</strong></td><td>{{ application.mother_name }}</td></tr>
-                        <tr><td><strong>Gender:</strong></td><td>{{ application.gender }}</td></tr>
-                        <tr><td><strong>Date of Birth:</strong></td><td>{{ application.date_of_birth }}</td></tr>
-                        <tr><td><strong>Category:</strong></td><td>{{ application.category }}</td></tr>
-                        <tr><td><strong>Phone:</strong></td><td>{{ application.phone }}</td></tr>
-                        <tr><td><strong>J&K Resident:</strong></td><td>{% if application.is_jk_resident %}Yes{% else %}No{% endif %}</td></tr>
-                        <tr><td><strong>Correspondence Address:</strong></td><td>{{ application.correspondence_address }}</td></tr>
-                        <tr><td><strong>Permanent Address:</strong></td><td>{{ application.permanent_address }}</td></tr>
-                    </table>
+                    <div class="row">
+                        <div class="col-md-9">
+                            <table class="table table-borderless">
+                                <tr><td><strong>Full Name:</strong></td><td>{{ application.full_name }}</td></tr>
+                                <tr><td><strong>Email:</strong></td><td>{{ application.student.email }}</td></tr>
+                                <tr><td><strong>Father's Name:</strong></td><td>{{ application.father_name }}</td></tr>
+                                <tr><td><strong>Mother's Name:</strong></td><td>{{ application.mother_name }}</td></tr>
+                                <tr><td><strong>Gender:</strong></td><td>{{ application.gender }}</td></tr>
+                                <tr><td><strong>Date of Birth:</strong></td><td>{{ application.date_of_birth }}</td></tr>
+                                <tr><td><strong>Category:</strong></td><td>{{ application.category }}</td></tr>
+                                <tr><td><strong>Phone:</strong></td><td>{{ application.phone }}</td></tr>
+                                <tr><td><strong>J&K Resident:</strong></td><td>{% if application.is_jk_resident %}Yes{% else %}No{% endif %}</td></tr>
+                                <tr><td><strong>Correspondence Address:</strong></td><td>{{ application.correspondence_address }}</td></tr>
+                                <tr><td><strong>Permanent Address:</strong></td><td>{{ application.permanent_address }}</td></tr>
+                            </table>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            {% if application.passport_photo %}
+                            <img src="{{ application.passport_photo.url }}" class="img-thumbnail" alt="Passport Photo" style="max-height:150px;">
+                            <p class="mt-2 text-muted small">Passport Photo</p>
+                            {% endif %}
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -45,8 +55,10 @@
                     <table class="table table-borderless">
                         <tr><td><strong>Preference 1:</strong></td><td>{{ application.get_preference1_display }}</td></tr>
                         <tr><td><strong>Preference 2:</strong></td><td>{{ application.get_preference2_display }}</td></tr>
+                        <tr><td><strong>Applied Round:</strong></td><td>{{ application.applied_round }}</td></tr>
                         <tr><td><strong>JEE Main Score:</strong></td><td>{{ application.jee_score|default:"Not provided" }}</td></tr>
                         <tr><td><strong>CUET Score:</strong></td><td>{{ application.cuet_score|default:"Not provided" }}</td></tr>
+                        <tr><td><strong>Board Percentage:</strong></td><td>{{ application.board_percentage|default:"Not provided" }}</td></tr>
                     </table>
                 </div>
             </div>
@@ -74,78 +86,71 @@
                 </div>
                 <div class="card-body">
                     <div class="row g-3">
-                        <div class="col-md-6">
+                        <div class="col-md-3">
                             <p><strong>10th Marksheet:</strong></p>
                             <a href="{{ application.marksheet_10th.url }}" target="_blank" class="btn btn-outline-primary btn-sm">
-                                <i class="fas fa-eye me-1"></i>View Document
+                                <i class="fas fa-eye me-1"></i>View
                             </a>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-3">
                             <p><strong>12th Marksheet:</strong></p>
                             <a href="{{ application.marksheet_12th.url }}" target="_blank" class="btn btn-outline-primary btn-sm">
-                                <i class="fas fa-eye me-1"></i>View Document
+                                <i class="fas fa-eye me-1"></i>View
                             </a>
                         </div>
+                        {% if application.aadhar_card %}
+                        <div class="col-md-3">
+                            <p><strong>Aadhar Card:</strong></p>
+                            <a href="{{ application.aadhar_card.url }}" target="_blank" class="btn btn-outline-secondary btn-sm">
+                                <i class="fas fa-eye me-1"></i>View
+                            </a>
+                        </div>
+                        {% endif %}
+                        {% if application.character_certificate %}
+                        <div class="col-md-3">
+                            <p><strong>Character Cert.:</strong></p>
+                            <a href="{{ application.character_certificate.url }}" target="_blank" class="btn btn-outline-secondary btn-sm">
+                                <i class="fas fa-eye me-1"></i>View
+                            </a>
+                        </div>
+                        {% endif %}
                         {% if application.category_certificate %}
-                        <div class="col-md-6">
-                            <p><strong>Category Certificate:</strong></p>
+                        <div class="col-md-3">
+                            <p><strong>Category Cert.:</strong></p>
                             <a href="{{ application.category_certificate.url }}" target="_blank" class="btn btn-outline-secondary btn-sm">
-                                <i class="fas fa-eye me-1"></i>View Document
+                                <i class="fas fa-eye me-1"></i>View
                             </a>
                         </div>
                         {% endif %}
                         {% if application.domicile_certificate %}
-                        <div class="col-md-6">
-                            <p><strong>Domicile Certificate:</strong></p>
+                        <div class="col-md-3">
+                            <p><strong>Domicile Cert.:</strong></p>
                             <a href="{{ application.domicile_certificate.url }}" target="_blank" class="btn btn-outline-secondary btn-sm">
-                                <i class="fas fa-eye me-1"></i>View Document
+                                <i class="fas fa-eye me-1"></i>View
                             </a>
                         </div>
                         {% endif %}
-                        <div class="col-md-6">
+                        {% if application.migration_certificate %}
+                        <div class="col-md-3">
+                            <p><strong>Migration Cert.:</strong></p>
+                            <a href="{{ application.migration_certificate.url }}" target="_blank" class="btn btn-outline-secondary btn-sm">
+                                <i class="fas fa-eye me-1"></i>View
+                            </a>
+                        </div>
+                        {% endif %}
+                        {% if application.entrance_scorecard %}
+                        <div class="col-md-3">
+                            <p><strong>Score Card:</strong></p>
+                            <a href="{{ application.entrance_scorecard.url }}" target="_blank" class="btn btn-outline-secondary btn-sm">
+                                <i class="fas fa-eye me-1"></i>View
+                            </a>
+                        </div>
+                        {% endif %}
+                        <div class="col-md-12 mt-3">
                             <p><strong>Signature:</strong></p>
                             <img src="{{ application.signature.url }}" style="max-height:80px; border:1px solid #ddd; padding:5px;">
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Right Column — Review -->
-        <div class="col-md-4">
-            <div class="card shadow sticky-top" style="top:20px">
-                <div class="card-header bg-dark text-white">
-                    <h5 class="mb-0"><i class="fas fa-gavel me-2"></i>Review Application</h5>
-                </div>
-                <div class="card-body">
-                    <p><strong>Current Status:</strong>
-                        {% if application.status == 'Pending' %}
-                        <span class="badge bg-warning text-dark">⏳ Pending</span>
-                        {% elif application.status == 'Approved' %}
-                        <span class="badge bg-success">✅ Approved</span>
-                        {% else %}
-                        <span class="badge bg-danger">❌ Rejected</span>
-                        {% endif %}
-                    </p>
-                    <form method="POST">
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Update Status</label>
-                            <select name="status" class="form-select">
-                                <option value="Pending" {% if application.status == 'Pending' %}selected{% endif %}>⏳ Pending</option>
-                                <option value="Approved" {% if application.status == 'Approved' %}selected{% endif %}>✅ Approved</option>
-                                <option value="Rejected" {% if application.status == 'Rejected' %}selected{% endif %}>❌ Rejected</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Remarks</label>
-                            <textarea name="remarks" class="form-control" rows="4"
-                            placeholder="Add remarks for student...">{{ application.remarks }}</textarea>
-                        </div>
-                        <button type="submit" class="btn btn-dark w-100">
-                            <i class="fas fa-save me-2"></i>Update Application
-                        </button>
-                    </form>
                 </div>
             </div>
         </div>

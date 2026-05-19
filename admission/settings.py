@@ -147,13 +147,20 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'vishvan.mansotra@gmail.com')
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', 'nfst baep xpuy trjc')
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
 DEFAULT_FROM_EMAIL = 'UniAdmit UIET Jammu <noreply@uiet.ac.in>'
 
 # Token expiry: Django's PasswordResetTokenGenerator uses PASSWORD_RESET_TIMEOUT
 # Default is 259200 seconds (3 days). Setting to 86400 = 24 hours.
 PASSWORD_RESET_TIMEOUT = 86400  # 24 hours in seconds
 
-# ── Gemini Chatbot ────────────────────────────────────────────────────────────
 GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', '')
+
+# ── OTP Email Verification ─────────────────────────────────────────────────────
+# Configurable list of allowed email domains for student registration
+ALLOWED_EMAIL_DOMAINS = [
+    'gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com',
+    'rediffmail.com', 'icloud.com', 'yahoo.in', 'ymail.com',
+]
+OTP_EXPIRY_SECONDS = 300  # OTP valid for 5 minutes

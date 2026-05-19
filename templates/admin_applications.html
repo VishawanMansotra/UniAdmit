@@ -8,39 +8,19 @@
             <i class="fas fa-list me-2"></i>All Applications
         </h3>
         <!-- Feature 2: CSV Export Button -->
-        <a href="/admin-export-csv/?status={{ status_filter }}"
+        <a href="/admin-export-csv/"
            class="btn btn-success">
             <i class="fas fa-file-csv me-2"></i>Export CSV
         </a>
     </div>
 
-    <!-- Filter Buttons -->
-    <div class="d-flex flex-wrap gap-2 mb-3">
-        <a href="/admin-applications/?q={{ search_query }}"
-           class="btn btn-sm {% if status_filter == 'all' %}btn-primary{% else %}btn-outline-primary{% endif %}">
-            All
-        </a>
-        <a href="/admin-applications/?status=Pending&q={{ search_query }}"
-           class="btn btn-sm {% if status_filter == 'Pending' %}btn-warning{% else %}btn-outline-warning{% endif %}">
-            ⏳ Pending
-        </a>
-        <a href="/admin-applications/?status=Approved&q={{ search_query }}"
-           class="btn btn-sm {% if status_filter == 'Approved' %}btn-success{% else %}btn-outline-success{% endif %}">
-            ✅ Approved
-        </a>
-        <a href="/admin-applications/?status=Rejected&q={{ search_query }}"
-           class="btn btn-sm {% if status_filter == 'Rejected' %}btn-danger{% else %}btn-outline-danger{% endif %}">
-            ❌ Rejected
-        </a>
-    </div>
+    <!-- Filter Buttons Removed -->
 
     <!-- Feature 4: Search Box -->
     <div class="card shadow mb-4">
         <div class="card-body py-3">
             <form method="GET" action="/admin-applications/" class="d-flex gap-2">
-                {% if status_filter != 'all' %}
-                <input type="hidden" name="status" value="{{ status_filter }}">
-                {% endif %}
+
                 <input type="text" name="q" value="{{ search_query }}"
                        class="form-control"
                        placeholder="🔍  Search by student name or email...">
@@ -48,7 +28,7 @@
                     <i class="fas fa-search me-1"></i> Search
                 </button>
                 {% if search_query %}
-                <a href="/admin-applications/?status={{ status_filter }}"
+                <a href="/admin-applications/"
                    class="btn btn-outline-secondary">
                     <i class="fas fa-times"></i>
                 </a>
@@ -76,8 +56,8 @@
                             <th>Preference 1</th>
                             <th>Preference 2</th>
                             <th>Category</th>
-                            <th>Applied On</th>
-                            <th>Status</th>
+                            <th>JEE/CUET</th>
+                            <th>Board %</th>
                             <th>Payment</th>
                             <th>Action</th>
                         </tr>
@@ -86,23 +66,17 @@
                         {% for app in applications %}
                         <tr>
                             <td>{{ forloop.counter }}</td>
-                            <td class="fw-semibold">{{ app.student.get_full_name }}</td>
+                            <td class="fw-semibold">{{ app.full_name }}</td>
                             <td><small>{{ app.student.email }}</small></td>
                             <td>{{ app.get_preference1_display }}</td>
                             <td>{{ app.get_preference2_display }}</td>
                             <td>
                                 <span class="badge bg-light text-dark border">{{ app.category }}</span>
                             </td>
-                            <td>{{ app.applied_at|date:"d M Y" }}</td>
                             <td>
-                                {% if app.status == 'Pending' %}
-                                    <span class="badge bg-warning text-dark">⏳ Pending</span>
-                                {% elif app.status == 'Approved' %}
-                                    <span class="badge bg-success">✅ Approved</span>
-                                {% else %}
-                                    <span class="badge bg-danger">❌ Rejected</span>
-                                {% endif %}
+                                {% if app.jee_score %}{{ app.jee_score }}{% elif app.cuet_score %}{{ app.cuet_score }}{% else %}-{% endif %}
                             </td>
+                            <td>{{ app.board_percentage|default:"-" }}</td>
                             <td>
                                 {% if app.payment %}
                                     {% if app.payment.status == 'paid' %}

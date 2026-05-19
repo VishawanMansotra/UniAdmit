@@ -59,30 +59,7 @@
         {% endif %}
     {% endfor %}
 
-    <!-- Stats Row -->
-    <div class="row g-4 mb-4">
-        <div class="col-md-4">
-            <div class="stat-card stat-card-blue">
-                <i class="fas fa-file-alt fa-2x mb-2 opacity-75"></i>
-                <h2>{{ applications_count|default:"0" }}</h2>
-                <h6>Total Applications</h6>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="stat-card stat-card-orange">
-                <i class="fas fa-clock fa-2x mb-2 opacity-75"></i>
-                <h2>{{ pending_count|default:"0" }}</h2>
-                <h6>Pending Review</h6>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="stat-card stat-card-green">
-                <i class="fas fa-check-circle fa-2x mb-2 opacity-75"></i>
-                <h2>{{ approved_count|default:"0" }}</h2>
-                <h6>Approved</h6>
-            </div>
-        </div>
-    </div>
+
 
     <!-- Quick Actions -->
     <div class="card shadow-sm mb-4">
@@ -120,19 +97,11 @@
         </div>
         <div class="card-body">
             <div class="row">
-                <div class="col-md-3 text-center">
-                    {% if student.photo %}
-                        <img src="{{ student.photo.url }}" class="rounded-circle img-fluid mb-2"
-                             style="width:120px; height:120px; object-fit:cover; border:4px solid #e8eeff;">
-                    {% else %}
-                        <i class="fas fa-user-circle fa-5x text-secondary"></i>
-                    {% endif %}
-                </div>
-                <div class="col-md-9">
+                <div class="col-md-12">
                     <table class="table table-borderless">
                         <tr>
                             <td><strong>Full Name:</strong></td>
-                            <td>{{ request.user.first_name }} {{ request.user.last_name }}</td>
+                            <td>{{ request.user.first_name }} {% if student.middle_name %}{{ student.middle_name }} {% endif %}{{ request.user.last_name }}</td>
                         </tr>
                         <tr>
                             <td><strong>Email:</strong></td>

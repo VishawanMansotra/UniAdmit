@@ -26,47 +26,87 @@
             <p class="text-muted mb-1">
                 You have already applied for
                 {% if existing_app %}
-                    <strong>{{ existing_app.get_preference1_display }}</strong>
+                <strong>{{ existing_app.get_preference1_display }}</strong>
                 {% else %}
-                    a course
+                a course
                 {% endif %}.
             </p>
             <p class="text-muted mb-4">
                 Check your dashboard for the current status of your application.
             </p>
-            {% if existing_app %}
-            <div class="d-inline-block mb-3 px-4 py-2 rounded"
-                 style="background:#e8eeff; border-left:4px solid #1a237e;">
-                <small>
-                    <strong>Status:</strong>
-                    {% if existing_app.status == 'Pending' %}
-                        <span class="badge bg-warning text-dark ms-1">⏳ Pending Review</span>
-                    {% elif existing_app.status == 'Approved' %}
-                        <span class="badge bg-success ms-1">✅ Approved</span>
-                    {% else %}
-                        <span class="badge bg-danger ms-1">❌ Rejected</span>
-                    {% endif %}
-                </small>
-            </div>
-            {% endif %}
+
             <div class="d-flex justify-content-center gap-3 flex-wrap mt-2">
-                <a href="/dashboard/"
-                   class="btn btn-primary px-5 py-2"
-                   style="background:linear-gradient(135deg,#1a237e,#1565c0); border:none; border-radius:8px;">
+                <a href="/dashboard/" class="btn btn-primary px-5 py-2"
+                    style="background:linear-gradient(135deg,#1a237e,#1565c0); border:none; border-radius:8px;">
                     <i class="fas fa-tachometer-alt me-2"></i>Go to Dashboard
                 </a>
-                <a href="/my-applications/"
-                   class="btn btn-outline-primary px-4 py-2"
-                   style="border-radius:8px;">
+                <a href="/my-applications/" class="btn btn-outline-primary px-4 py-2" style="border-radius:8px;">
                     <i class="fas fa-list me-2"></i>View My Applications
                 </a>
             </div>
         </div>
 
+        {% elif round_closed %}
+        <!-- Applications Closed -->
+        <div class="text-center py-5">
+            <div class="mb-3">
+                <i class="fas fa-lock fa-4x" style="color:#dc3545; opacity:0.7;"></i>
+            </div>
+            <h4 class="fw-bold text-danger mb-2">Applications Are Currently Closed</h4>
+            <p class="text-muted mb-4">
+                The admission portal is not accepting applications at this time.<br>
+                Please check back later or contact the admission office.
+            </p>
+            <div class="d-flex justify-content-center gap-3 flex-wrap">
+                <a href="/dashboard/" class="btn btn-primary px-5 py-2"
+                    style="background:linear-gradient(135deg,#1a237e,#1565c0); border:none; border-radius:8px;">
+                    <i class="fas fa-tachometer-alt me-2"></i>Go to Dashboard
+                </a>
+                <a href="/" class="btn btn-outline-secondary px-4 py-2" style="border-radius:8px;">
+                    <i class="fas fa-home me-2"></i>Back to Home
+                </a>
+            </div>
+        </div>
+
         {% else %}
-        <!-- Normal application form — only shown when no duplicate exists -->
+        <!-- Normal application form -->
+
+        <!-- Active Round Banner -->
+        {% if round_label %}
+        <div class="alert alert-primary d-flex align-items-center mb-4" role="alert"
+             style="border-left: 5px solid #1a237e; background:#e8eeff;">
+            <i class="fas fa-info-circle me-3 fa-lg text-primary"></i>
+            <div>
+                <strong>{{ round_label }} is currently open.</strong>
+                {% if current_round == 'round1_jee' %}
+                    Please enter your <strong>JEE Mains 2026</strong> score below.
+                {% elif current_round == 'round2_cuet' %}
+                    Please enter your <strong>CUET UG</strong> score below.
+                {% elif current_round == 'round3_board' %}
+                    Please enter your <strong>10+2 Overall Percentage</strong> below.
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
         <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
+
+            {% if form.errors %}
+            <div class="alert alert-danger mb-4">
+                <h6 class="alert-heading fw-bold"><i class="fas fa-exclamation-triangle me-2"></i>Please correct the errors below:</h6>
+                <ul class="mb-0">
+                    {% for field in form %}
+                        {% if field.errors %}
+                            <li><strong>{{ field.label }}</strong>: {{ field.errors|striptags }}</li>
+                        {% endif %}
+                    {% endfor %}
+                    {% if form.non_field_errors %}
+                        <li>{{ form.non_field_errors|striptags }}</li>
+                    {% endif %}
+                </ul>
+            </div>
+            {% endif %}
 
 
             <!-- Program Preferences -->
@@ -76,33 +116,56 @@
                 </div>
                 <div class="card-body">
                     <div class="row g-3">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label class="form-label fw-bold">Preference 1 <span class="text-danger">*</span></label>
                             {{ form.preference1 }}
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label class="form-label fw-bold">Preference 2 <span class="text-danger">*</span></label>
                             {{ form.preference2 }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Preference 3 <span class="text-muted">(Optional)</span></label>
+                            {{ form.preference3 }}
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Exam Scores -->
+            <!-- Exam Scores — shows only the field relevant to the active round -->
             <div class="card mb-4 border-success">
                 <div class="card-header bg-success text-white">
-                    <h5 class="mb-0"><i class="fas fa-trophy me-2"></i>Entrance Exam Scores</h5>
+                    <h5 class="mb-0"><i class="fas fa-trophy me-2"></i>Entrance Exam Score</h5>
                 </div>
                 <div class="card-body">
                     <div class="row g-3">
+
+                        {% if current_round == 'round1_jee' %}
                         <div class="col-md-6">
-                            <label class="form-label fw-bold">JEE Main Score (2025)</label>
+                            <label class="form-label fw-bold">JEE Mains 2026 Score <span class="text-danger">*</span></label>
                             {{ form.jee_score }}
+                            <div class="text-danger small fw-bold">{{ form.jee_score.errors }}</div>
+                            <small class="text-muted">Percentile score (0–100)</small>
                         </div>
+                        {% endif %}
+
+                        {% if current_round == 'round2_cuet' %}
                         <div class="col-md-6">
-                            <label class="form-label fw-bold">CUET Score (2025)</label>
+                            <label class="form-label fw-bold">CUET UG Score <span class="text-danger">*</span></label>
                             {{ form.cuet_score }}
+                            <div class="text-danger small fw-bold">{{ form.cuet_score.errors }}</div>
+                            <small class="text-muted">Score (0–100)</small>
                         </div>
+                        {% endif %}
+
+                        {% if current_round == 'round3_board' %}
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">10+2 Overall Percentage <span class="text-danger">*</span></label>
+                            {{ form.board_percentage }}
+                            <small class="text-muted">Enter your overall board percentage (e.g. 85.50)</small>
+                        </div>
+                        {% endif %}
+
                     </div>
                 </div>
             </div>
@@ -114,6 +177,18 @@
                 </div>
                 <div class="card-body">
                     <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">First Name <span class="text-danger">*</span></label>
+                            {{ form.first_name }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Middle Name</label>
+                            {{ form.middle_name }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Last Name <span class="text-danger">*</span></label>
+                            {{ form.last_name }}
+                        </div>
                         <div class="col-md-6">
                             <label class="form-label fw-bold">Father's Name <span class="text-danger">*</span></label>
                             {{ form.father_name }}
@@ -149,18 +224,26 @@
                             <label class="form-label fw-bold">Phone Number <span class="text-danger">*</span></label>
                             {{ form.phone }}
                         </div>
-                        <div class="col-md-6 d-flex align-items-center mt-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Permanent Resident of J&K? <span class="text-danger">*</span></label>
+                            {{ form.is_jk_resident }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-bold">Correspondence Address <span
+                                    class="text-danger">*</span></label>
+                            {{ form.correspondence_address }}
+                        </div>
+                        <div class="col-12 mt-2 mb-2">
                             <div class="form-check">
-                                {{ form.is_jk_resident }}
-                                <label class="form-check-label fw-bold ms-2">Permanent Resident of J&K?</label>
+                                <input class="form-check-input" type="checkbox" id="same_as_corr">
+                                <label class="form-check-label fw-bold" for="same_as_corr">
+                                    Permanent address is same as correspondence address
+                                </label>
                             </div>
                         </div>
                         <div class="col-12">
-                            <label class="form-label fw-bold">Correspondence Address <span class="text-danger">*</span></label>
-                            {{ form.correspondence_address }}
-                        </div>
-                        <div class="col-12">
-                            <label class="form-label fw-bold">Permanent Address <span class="text-danger">*</span></label>
+                            <label class="form-label fw-bold">Permanent Address <span
+                                    class="text-danger">*</span></label>
                             {{ form.permanent_address }}
                         </div>
                     </div>
@@ -177,25 +260,30 @@
                         <div class="col-md-3">
                             <label class="form-label fw-bold">Physics Marks <span class="text-danger">*</span></label>
                             {{ form.physics_marks }}
+                            <div class="text-danger small fw-bold">{{ form.physics_marks.errors }}</div>
                         </div>
                         <div class="col-md-3">
                             <label class="form-label fw-bold">Chemistry Marks <span class="text-danger">*</span></label>
                             {{ form.chemistry_marks }}
+                            <div class="text-danger small fw-bold">{{ form.chemistry_marks.errors }}</div>
                         </div>
                         <div class="col-md-3">
                             <label class="form-label fw-bold">Math Marks <span class="text-danger">*</span></label>
                             {{ form.math_marks }}
+                            <div class="text-danger small fw-bold">{{ form.math_marks.errors }}</div>
                         </div>
                         <div class="col-md-3">
                             <label class="form-label fw-bold">Maximum Marks <span class="text-danger">*</span></label>
                             {{ form.max_marks }}
+                            <div class="text-danger small fw-bold">{{ form.max_marks.errors }}</div>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-bold">Board Name <span class="text-danger">*</span></label>
                             {{ form.board_name }}
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-bold">School/College Name <span class="text-danger">*</span></label>
+                            <label class="form-label fw-bold">School/College Name <span
+                                    class="text-danger">*</span></label>
                             {{ form.school_name }}
                         </div>
                     </div>
@@ -208,7 +296,20 @@
                     <h5 class="mb-0"><i class="fas fa-upload me-2"></i>Document Upload</h5>
                 </div>
                 <div class="card-body">
-                    <div class="row g-3">
+
+                    <!-- Group A: Personal Documents -->
+                    <p class="fw-bold text-secondary mb-2"><i class="fas fa-folder-open me-1"></i> Personal Documents</p>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Passport Size Photo <span class="text-danger">*</span></label>
+                            {{ form.passport_photo }}
+                            <small class="text-muted">Recent colour passport-size photograph (JPG/PNG)</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Aadhar Card <span class="text-danger">*</span></label>
+                            {{ form.aadhar_card }}
+                            <small class="text-muted">Scanned copy of Aadhar Card (PDF or Image)</small>
+                        </div>
                         <div class="col-md-6">
                             <label class="form-label fw-bold">10th Marksheet <span class="text-danger">*</span></label>
                             {{ form.marksheet_10th }}
@@ -220,31 +321,193 @@
                             <small class="text-muted">PDF or Image only</small>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-bold">Category Certificate <span class="text-muted">(Optional)</span></label>
-                            {{ form.category_certificate }}
+                            <label class="form-label fw-bold">Character Certificate <span class="text-danger">*</span></label>
+                            {{ form.character_certificate }}
+                            <small class="text-muted">From last attended institution</small>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-bold">J&K Domicile Certificate <span class="text-muted">(Optional)</span></label>
                             {{ form.domicile_certificate }}
                         </div>
                         <div class="col-md-6">
+                            <label class="form-label fw-bold">Category Certificate <span class="text-muted">(Optional)</span></label>
+                            {{ form.category_certificate }}
+                            <small class="text-muted">Required for SC / ST / OBC / EWS / PWD</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Migration Certificate <span class="text-muted">(Optional)</span></label>
+                            {{ form.migration_certificate }}
+                            <small class="text-muted">Required if board is outside J&K</small>
+                        </div>
+                        <div class="col-md-6">
                             <label class="form-label fw-bold">Signature <span class="text-danger">*</span></label>
                             {{ form.signature }}
-                            <small class="text-muted">Upload clear image of your signature</small>
+                            <small class="text-muted">Upload clear image of your signature on white paper</small>
                         </div>
                     </div>
+
+                    <!-- Score Card Upload (hidden for board round) -->
+                    {% if current_round != 'round3_board' %}
+                    <div class="row g-3 mt-1">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">
+                                {% if current_round == 'round1_jee' %}JEE Score Card{% else %}CUET Score Card{% endif %}
+                                <span class="text-danger">*</span>
+                            </label>
+                            {{ form.entrance_scorecard }}
+                            <small class="text-muted">Upload scorecard PDF or Image</small>
+                        </div>
+                    </div>
+                    {% endif %}
+
                 </div>
             </div>
 
-            <!-- Submit -->
-            <div class="text-center">
-                <button type="submit" class="btn btn-primary btn-lg px-5">
-                    <i class="fas fa-paper-plane me-2"></i>Submit Application
+
+            <!-- Submit / Actions -->
+            <div class="text-center mt-4 mb-4" id="action-buttons">
+                <button type="button" class="btn btn-warning btn-lg px-5 shadow-sm" id="btn-preview">
+                    <i class="fas fa-eye me-2"></i>Review Application
                 </button>
+                <div id="preview-actions" class="d-none mt-3">
+                    <button type="button" class="btn btn-outline-secondary btn-lg px-4 me-3" id="btn-edit">
+                        <i class="fas fa-edit me-2"></i>Go Back & Edit
+                    </button>
+                    <button type="submit" class="btn btn-primary btn-lg px-5 shadow-sm" id="btn-submit">
+                        <i class="fas fa-paper-plane me-2"></i>Confirm & Submit
+                    </button>
+                </div>
             </div>
 
         </form>
         {% endif %}{# end duplicate check #}
     </div>
 </div>
-{% endblock %}
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const btnPreview = document.getElementById('btn-preview');
+    const btnEdit = document.getElementById('btn-edit');
+    const previewActions = document.getElementById('preview-actions');
+    const form = document.querySelector('form');
+
+    // Address copy logic
+    const sameAsCorrCb = document.getElementById('same_as_corr');
+    const corrAddr = document.getElementById('id_correspondence_address');
+    const permAddr = document.getElementById('id_permanent_address');
+
+    if (sameAsCorrCb && corrAddr && permAddr) {
+        sameAsCorrCb.addEventListener('change', function() {
+            if (this.checked) {
+                permAddr.value = corrAddr.value;
+                permAddr.readOnly = true;
+                permAddr.style.backgroundColor = '#e9ecef';
+            } else {
+                permAddr.readOnly = false;
+                permAddr.style.backgroundColor = '';
+                permAddr.value = '';
+            }
+        });
+        
+        corrAddr.addEventListener('input', function() {
+            if (sameAsCorrCb.checked) {
+                permAddr.value = this.value;
+            }
+        });
+    }
+
+    if (!btnPreview) return; // if form is not rendered (duplicate app)
+
+    function togglePreview(isPreview) {
+        const elements = form.querySelectorAll('input, select, textarea');
+        
+        elements.forEach(el => {
+            if (el.type === 'hidden' || el.tagName === 'BUTTON' || el.type === 'submit' || el.name === 'csrfmiddlewaretoken' || !el.name) return;
+
+            if (isPreview) {
+                el.classList.add('d-none');
+                
+                let valText = el.value;
+                if (el.tagName === 'SELECT') {
+                    const selected = el.options[el.selectedIndex];
+                    valText = selected && selected.value ? selected.text : 'Not Selected';
+                } else if (el.type === 'checkbox') {
+                    valText = el.checked ? 'Yes' : 'No';
+                } else if (el.type === 'file') {
+                    valText = el.files.length > 0 ? 'File Selected: ' + el.files[0].name : 'Not Uploaded';
+                }
+                
+                const span = document.createElement('div');
+                span.className = 'preview-text form-control bg-light text-dark border-secondary';
+                span.style.minHeight = '38px';
+                span.innerText = valText || '-';
+                
+                el.parentNode.insertBefore(span, el.nextSibling);
+            } else {
+                el.classList.remove('d-none');
+                const span = el.parentNode.querySelector('.preview-text');
+                if (span) span.remove();
+            }
+        });
+
+        if (isPreview) {
+            btnPreview.classList.add('d-none');
+            previewActions.classList.remove('d-none');
+        } else {
+            btnPreview.classList.remove('d-none');
+            previewActions.classList.add('d-none');
+        }
+    }
+
+    btnPreview.addEventListener('click', function() {
+        if (!form.reportValidity()) {
+            return;
+        }
+
+        // Custom validation for max_marks
+        const maxMarksEl = document.getElementById('id_max_marks');
+        if (maxMarksEl && maxMarksEl.value) {
+            const maxMarks = parseFloat(maxMarksEl.value);
+            const subjects = ['id_physics_marks', 'id_chemistry_marks', 'id_math_marks'];
+            let hasError = false;
+
+            subjects.forEach(id => {
+                const el = document.getElementById(id);
+                if (el && el.value) {
+                    if (parseFloat(el.value) > maxMarks) {
+                        el.setCustomValidity('Cannot exceed maximum marks (' + maxMarks + ')');
+                        el.reportValidity();
+                        hasError = true;
+                    } else {
+                        el.setCustomValidity('');
+                    }
+                }
+            });
+
+            if (hasError) return;
+        }
+
+        togglePreview(true);
+        window.scrollTo(0, 0);
+    });
+
+    // Clear custom validity on input change so the user can correct it
+    const academicIds = ['id_physics_marks', 'id_chemistry_marks', 'id_math_marks', 'id_max_marks'];
+    academicIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('input', function() {
+                academicIds.forEach(subId => {
+                    const subEl = document.getElementById(subId);
+                    if (subEl) subEl.setCustomValidity('');
+                });
+            });
+        }
+    });
+
+    btnEdit.addEventListener('click', function() {
+        togglePreview(false);
+    });
+});
+</script>
+{% endblock %}

@@ -5,6 +5,7 @@ urlpatterns = [
     # ── Existing Public ────────────────────────────────────────────
     path('', views.home, name='home'),
     path('register/', views.register, name='register'),
+    path('verify-otp/', views.verify_otp, name='verify_otp'),
     path('login/', views.student_login, name='login'),
     path('admin-login/', views.admin_login, name='admin_login'),
     path('logout/', views.student_logout, name='logout'),
@@ -35,6 +36,13 @@ urlpatterns = [
     path('admin-courses/add/', views.admin_course_add, name='admin_course_add'),
     path('admin-courses/<int:course_id>/edit/', views.admin_course_edit, name='admin_course_edit'),
     path('admin-courses/<int:course_id>/toggle/', views.admin_course_toggle, name='admin_course_toggle'),
+
+    # ── Custom Admin: Admission Round & Merit List PDFs ────────────
+    path('admin-admission-round/', views.admin_admission_round, name='admin_admission_round'),
+    path('admin-merit-list-pdfs/', views.admin_merit_list_pdfs, name='admin_merit_list_pdfs'),
+    path('admin-merit-list-pdfs/add/', views.admin_merit_list_pdf_add, name='admin_merit_list_pdf_add'),
+    path('admin-merit-list-pdfs/<int:pdf_id>/delete/', views.admin_merit_list_pdf_delete, name='admin_merit_list_pdf_delete'),
+    path('admin-merit-list-pdfs/<int:pdf_id>/toggle/', views.admin_merit_list_pdf_toggle, name='admin_merit_list_pdf_toggle'),
 
     # ── Payment Gateway ─────────────────────────────────────────────
     path('payment/initiate/', views.initiate_payment, name='initiate_payment'),

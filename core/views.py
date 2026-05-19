@@ -4,6 +4,7 @@ import json
 import hmac
 import hashlib
 import threading
+import pyotp
 from datetime import date
 from django.db import IntegrityError
 
@@ -18,7 +19,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
-from django.db.models import Q
+from django.db.models import Q, F
 from django.utils import timezone
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -30,14 +31,11 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import cm
 from reportlab.pdfgen import canvas
 from reportlab.platypus import (
-    SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable
+    SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable, Image
 )
 
-from .models import StudentProfile, Application, Course, Payment
-from .forms import (
-    StudentRegistrationForm, ApplicationForm,
-    ProfileEditForm, CourseForm,
-)
+from .models import StudentProfile, Application, Course, Payment, AdmissionRound, MeritListPDF
+from .forms import StudentRegistrationForm, ProfileEditForm, ApplicationForm, CourseForm, AdmissionRoundForm, MeritListPDFForm
 
 
 # ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -82,10 +80,18 @@ def _send_email(subject, body, recipient_email):
 # ─── Public Views ────────────────────────────────────────────────────────────
 
 def home(request):
-    return render(request, 'home.html')
+    published_results = MeritListPDF.objects.filter(is_published=True)
+    return render(request, 'home.html', {
+        'published_results': published_results
+    })
 
 
 def register(request):
+    """
+    Feature OTP: Registration with email OTP verification.
+    Step 1 — Collect form data, validate email domain, create INACTIVE user,
+    send OTP to email, redirect to OTP verification page.
+    """
     form = StudentRegistrationForm()
     if request.method == 'POST':
         form = StudentRegistrationForm(request.POST, request.FILES)
@@ -96,40 +102,130 @@ def register(request):
             if User.objects.filter(email=form.cleaned_data['email']).exists():
                 messages.error(request, 'Email already registered!')
                 return render(request, 'register.html', {'form': form})
-            user = User.objects.create_user(
-                username=form.cleaned_data['email'],
-                email=form.cleaned_data['email'],
-                password=form.cleaned_data['password'],
-                first_name=form.cleaned_data['first_name'],
-                last_name=form.cleaned_data['last_name'],
+
+            # Store all form data in session
+            pending = {
+                'first_name': form.cleaned_data['first_name'],
+                'middle_name': form.cleaned_data.get('middle_name', ''),
+                'last_name': form.cleaned_data['last_name'],
+                'email': form.cleaned_data['email'],
+                'password': form.cleaned_data['password'],
+                'phone': form.cleaned_data['phone'],
+                'gender': form.cleaned_data['gender'],
+                'date_of_birth': str(form.cleaned_data['date_of_birth']),
+                'address': form.cleaned_data['address'],
+            }
+
+            request.session['pending_registration'] = pending
+
+            # Generate TOTP secret and OTP
+            secret = pyotp.random_base32()
+            request.session['otp_secret'] = secret
+            otp = pyotp.TOTP(secret, interval=300).now()  # valid 5 min
+
+            _send_email(
+                subject='Your OTP for UniAdmit Registration',
+                body=(
+                    f"Dear {pending['first_name']},\n\n"
+                    "Thank you for registering at UniAdmit — UIET, University of Jammu.\n\n"
+                    f"  Your One-Time Password (OTP) : {otp}\n\n"
+                    "This OTP is valid for 5 minutes. Do not share it with anyone.\n\n"
+                    "If you did not request this, please ignore this email.\n\n"
+                    "Regards,\n"
+                    "Admissions Office\n"
+                    "UIET, University of Jammu"
+                ),
+                recipient_email=pending['email'],
             )
-            StudentProfile.objects.create(
-                user=user,
-                phone=form.cleaned_data['phone'],
-                date_of_birth=form.cleaned_data['date_of_birth'],
-                address=form.cleaned_data['address'],
-                photo=form.cleaned_data.get('photo'),
-            )
-            # Feature: Email — welcome email after successful registration
+            messages.info(request, f"An OTP has been sent to {pending['email']}. Please enter it below.")
+            return redirect('verify_otp')
+    return render(request, 'register.html', {'form': form})
+
+
+def verify_otp(request):
+    """
+    Feature OTP: Step 2 — Verify the OTP entered by the student.
+    On success, create the user as active, send welcome email, log them in.
+    """
+    pending = request.session.get('pending_registration')
+    otp_secret = request.session.get('otp_secret')
+
+    if not pending or not otp_secret:
+        messages.error(request, 'Session expired. Please register again.')
+        return redirect('register')
+
+    if request.method == 'POST':
+        entered_otp = request.POST.get('otp', '').strip()
+
+        totp = pyotp.TOTP(otp_secret, interval=300)
+        if totp.verify(entered_otp, valid_window=1):
+            # OTP valid — create the user now (active)
+
+            # Guard: if a user with this email already exists, don't crash
+            if User.objects.filter(email=pending['email']).exists():
+                del request.session['pending_registration']
+                del request.session['otp_secret']
+                messages.error(
+                    request,
+                    'An account with this email already exists. Please log in instead.'
+                )
+                return redirect('login')
+
+            try:
+                user = User.objects.create_user(
+                    username=pending['email'],
+                    email=pending['email'],
+                    password=pending['password'],
+                    first_name=pending['first_name'],
+                    last_name=pending['last_name'],
+                    is_active=True,
+                )
+            except IntegrityError:
+                del request.session['pending_registration']
+                del request.session['otp_secret']
+                messages.error(
+                    request,
+                    'An account with this email already exists. Please log in instead.'
+                )
+                return redirect('login')
+            profile_kwargs = {
+                'user': user,
+                'middle_name': pending.get('middle_name', ''),
+                'phone': pending['phone'],
+                'gender': pending['gender'],
+                'date_of_birth': pending['date_of_birth'],
+                'address': pending['address'],
+            }
+            profile = StudentProfile.objects.create(**profile_kwargs)
+
+            # Clear session data
+            del request.session['pending_registration']
+            del request.session['otp_secret']
+
+            # Send welcome email
             _send_email(
                 subject='Welcome to UniAdmit',
                 body=(
                     f"Dear {user.get_full_name()},\n\n"
                     "Welcome to the University Admission Portal — UIET, University of Jammu.\n\n"
-                    "Your account has been successfully created.\n"
+                    "Your email has been verified and your account is now active.\n"
                     f"  Registered Email : {user.email}\n\n"
                     "You can now log in and submit your B.Tech admission application.\n"
                     "  Portal: http://127.0.0.1:8000/login/\n\n"
-                    "If you did not create this account, please contact us immediately.\n\n"
                     "Regards,\n"
                     "Admissions Office\n"
                     "UIET, University of Jammu"
                 ),
                 recipient_email=user.email,
             )
-            messages.success(request, 'Registration successful! Please login.')
-            return redirect('login')
-    return render(request, 'register.html', {'form': form})
+            login(request, user)
+            messages.success(request, f'Email verified! Welcome, {user.first_name}. You are now logged in.')
+            return redirect('dashboard')
+        else:
+            messages.error(request, 'Invalid or expired OTP. Please try again.')
+            return render(request, 'verify_otp.html', {'email': pending['email']})
+
+    return render(request, 'verify_otp.html', {'email': pending.get('email', '')})
 
 
 def student_login(request):
@@ -164,10 +260,9 @@ def admin_login(request):
         # Look up the user by email first, then verify the password directly.
         # This handles the case where the superuser's username differs from
         # their email (e.g. username='admin', email='admin@uiet.ac.in').
-        try:
-            user = User.objects.get(email=email)
-        except User.DoesNotExist:
-            user = None
+        # Using .filter(email=email).first() to avoid MultipleObjectsReturned
+        # if there are duplicate admin emails in the database.
+        user = User.objects.filter(email=email).first()
         if user is not None and user.is_staff and user.check_password(password):
             login(request, user)
             messages.success(request, f'Welcome, Admin {user.first_name}!')
@@ -190,15 +285,11 @@ def dashboard(request):
         return redirect('home')
     applications = Application.objects.filter(student=request.user)
     applications_count = applications.count()
-    pending_count = applications.filter(status='Pending').count()
-    approved_count = applications.filter(status='Approved').count()
     return render(request, 'dashboard.html', {
         'student': student,
         'applications_count': applications_count,
-        'pending_count': pending_count,
-        'approved_count': approved_count,
-        'applications': applications,          # Feature 3: for status banners
-        'courses_dict': _get_courses_dict(),   # Feature 3: for course display names
+        'applications': applications,
+        'courses_dict': _get_courses_dict(),
     })
 
 
@@ -219,17 +310,17 @@ def profile_edit(request):
             request.user.first_name = form.cleaned_data['first_name']
             request.user.last_name = form.cleaned_data['last_name']
             request.user.save()
+            profile.middle_name = form.cleaned_data.get('middle_name', '')
             profile.phone = form.cleaned_data['phone']
             profile.date_of_birth = form.cleaned_data['date_of_birth']
             profile.address = form.cleaned_data['address']
-            if form.cleaned_data.get('photo'):
-                profile.photo = form.cleaned_data['photo']
             profile.save()
             messages.success(request, 'Profile updated successfully!')
             return redirect('dashboard')
     else:
         form = ProfileEditForm(initial={
             'first_name': request.user.first_name,
+            'middle_name': profile.middle_name,
             'last_name': request.user.last_name,
             'phone': profile.phone,
             'date_of_birth': profile.date_of_birth,
@@ -241,29 +332,63 @@ def profile_edit(request):
 @login_required(login_url='/login/')
 def apply(request):
     """
-    Feature 3: Duplicate-application guard.
-    A student who already has an application for their chosen preference1 course
-    is blocked before the form is even shown.
+    Round-aware application view.
+    Reads AdmissionRound to determine what's open, blocks if closed,
+    and passes round info to form and template.
     """
     courses_dict = _get_courses_dict()
+    current_round = AdmissionRound.get_active()
+
+    # If round is closed, show a closed message instead of the form
+    if current_round == 'closed':
+        return render(request, 'apply.html', {
+            'round_closed': True,
+            'courses_dict': courses_dict,
+        })
+
+    # Round labels for display
+    round_labels = {
+        'round1_jee':   'Round 1 — JEE Mains 2026',
+        'round2_cuet':  'Round 2 — CUET UG',
+        'round3_board': 'Round 3 — 10+2 Board Score',
+    }
+    round_label = round_labels.get(current_round, current_round)
 
     # Check for any existing application by this student
     existing = Application.objects.filter(student=request.user).first()
     if existing:
-        # Show a friendly info page instead of silently redirecting
         return render(request, 'apply.html', {
             'duplicate': True,
             'existing_app': existing,
             'courses_dict': courses_dict,
+            'current_round': current_round,
+            'round_label': round_label,
         })
 
-    form = ApplicationForm()
+    try:
+        profile = StudentProfile.objects.get(user=request.user)
+    except StudentProfile.DoesNotExist:
+        profile = None
+
+    initial_data = {
+        'first_name': request.user.first_name,
+        'last_name': request.user.last_name,
+    }
+    if profile:
+        initial_data.update({
+            'phone': profile.phone,
+            'gender': profile.gender,
+            'date_of_birth': profile.date_of_birth,
+            'correspondence_address': profile.address,
+        })
+
+    form = ApplicationForm(initial=initial_data, current_round=current_round)
     if request.method == 'POST':
-        form = ApplicationForm(request.POST, request.FILES)
+        form = ApplicationForm(request.POST, request.FILES, current_round=current_round)
         if form.is_valid():
             selected_pref1 = form.cleaned_data['preference1']
 
-            # Feature 3: second guard — check at the view level before DB write
+            # Duplicate guard
             if Application.objects.filter(
                 student=request.user,
                 preference1=selected_pref1,
@@ -271,15 +396,23 @@ def apply(request):
                 return render(request, 'apply.html', {
                     'duplicate': True,
                     'courses_dict': courses_dict,
+                    'current_round': current_round,
+                    'round_label': round_label,
                 })
 
             try:
                 app = Application.objects.create(
                     student=request.user,
+                    applied_round=current_round,
+                    first_name=form.cleaned_data['first_name'],
+                    middle_name=form.cleaned_data.get('middle_name'),
+                    last_name=form.cleaned_data['last_name'],
                     preference1=selected_pref1,
                     preference2=form.cleaned_data['preference2'],
-                    jee_score=form.cleaned_data['jee_score'],
-                    cuet_score=form.cleaned_data['cuet_score'],
+                    preference3=form.cleaned_data.get('preference3'),
+                    jee_score=form.cleaned_data.get('jee_score'),
+                    cuet_score=form.cleaned_data.get('cuet_score'),
+                    board_percentage=form.cleaned_data.get('board_percentage'),
                     father_name=form.cleaned_data['father_name'],
                     mother_name=form.cleaned_data['mother_name'],
                     gender=form.cleaned_data['gender'],
@@ -295,20 +428,28 @@ def apply(request):
                     max_marks=form.cleaned_data['max_marks'],
                     board_name=form.cleaned_data['board_name'],
                     school_name=form.cleaned_data['school_name'],
+                    # Personal documents
+                    passport_photo=form.cleaned_data.get('passport_photo'),
                     marksheet_10th=form.cleaned_data['marksheet_10th'],
                     marksheet_12th=form.cleaned_data['marksheet_12th'],
+                    aadhar_card=form.cleaned_data.get('aadhar_card'),
+                    character_certificate=form.cleaned_data.get('character_certificate'),
                     category_certificate=form.cleaned_data.get('category_certificate'),
                     domicile_certificate=form.cleaned_data.get('domicile_certificate'),
+                    migration_certificate=form.cleaned_data.get('migration_certificate'),
                     signature=form.cleaned_data['signature'],
+                    # Score verification
+                    entrance_scorecard=form.cleaned_data.get('entrance_scorecard'),
                 )
             except IntegrityError:
-                # Feature 3: DB-level unique constraint safety net
                 return render(request, 'apply.html', {
                     'duplicate': True,
                     'courses_dict': courses_dict,
+                    'current_round': current_round,
+                    'round_label': round_label,
                 })
 
-            # Feature: Email — application confirmation email
+            # Confirmation email
             course_name = courses_dict.get(app.preference1, app.preference1)
             _send_email(
                 subject='Application Received',
@@ -316,11 +457,11 @@ def apply(request):
                     f"Dear {request.user.get_full_name()},\n\n"
                     "Thank you for applying. Your application has been successfully submitted.\n\n"
                     f"  Application ID  : {app.id}\n"
+                    f"  Round           : {round_label}\n"
                     f"  Program Applied : {course_name}\n"
                     f"  Submitted On    : {app.applied_at.strftime('%d %B %Y')}\n"
                     f"  Current Status  : Pending Review\n\n"
                     "You will receive another email once your application is reviewed by the admissions team.\n"
-                    "  Track status: http://127.0.0.1:8000/my-applications/\n\n"
                     "Regards,\n"
                     "Admissions Office\n"
                     "UIET, University of Jammu"
@@ -329,7 +470,13 @@ def apply(request):
             )
             messages.success(request, 'Application submitted successfully!')
             return redirect('my_applications')
-    return render(request, 'apply.html', {'form': form, 'courses_dict': courses_dict})
+
+    return render(request, 'apply.html', {
+        'form': form,
+        'courses_dict': courses_dict,
+        'current_round': current_round,
+        'round_label': round_label,
+    })
 
 
 @login_required(login_url='/login/')
@@ -346,9 +493,9 @@ def my_applications(request):
 @staff_member_required(login_url='/login/')
 def admin_dashboard(request):
     total = Application.objects.count()
-    pending = Application.objects.filter(status='Pending').count()
-    approved = Application.objects.filter(status='Approved').count()
-    rejected = Application.objects.filter(status='Rejected').count()
+    round1 = Application.objects.filter(applied_round='round1_jee').count()
+    round2 = Application.objects.filter(applied_round='round2_cuet').count()
+    round3 = Application.objects.filter(applied_round='round3_board').count()
     recent_applications = Application.objects.all().order_by('-applied_at')[:5]
 
     # Feature 7: Build chart data dynamically from Course model
@@ -365,14 +512,14 @@ def admin_dashboard(request):
 
     return render(request, 'admin_dashboard.html', {
         'total': total,
-        'pending': pending,
-        'approved': approved,
-        'rejected': rejected,
+        'round1': round1,
+        'round2': round2,
+        'round3': round3,
         'recent_applications': recent_applications,
-        # Status doughnut chart data
-        'chart_status_labels': json.dumps(['Pending', 'Approved', 'Rejected']),
-        'chart_status_data': json.dumps([pending, approved, rejected]),
-        'chart_status_colors': json.dumps(['#1a237e', '#2e7d32', '#b71c1c']),
+        # Round doughnut chart data
+        'chart_round_labels': json.dumps(['Round 1 (JEE)', 'Round 2 (CUET)', 'Round 3 (Board)']),
+        'chart_round_data': json.dumps([round1, round2, round3]),
+        'chart_round_colors': json.dumps(['#0d6efd', '#198754', '#fd7e14']),
         # Course bar chart data
         'chart_course_labels': json.dumps(list(courses_dict.values())),
         'chart_course_data': json.dumps(course_data_vals),
@@ -383,15 +530,9 @@ def admin_dashboard(request):
 @staff_member_required(login_url='/login/')
 def admin_applications(request):
     """Feature 4: Search added."""
-    status_filter = request.GET.get('status', 'all')
     search_query = request.GET.get('q', '').strip()
 
-    if status_filter == 'all':
-        applications = Application.objects.all().order_by('-applied_at')
-    else:
-        applications = Application.objects.filter(
-            status=status_filter
-        ).order_by('-applied_at')
+    applications = Application.objects.all().order_by('-applied_at')
 
     if search_query:
         applications = applications.filter(
@@ -402,7 +543,6 @@ def admin_applications(request):
 
     return render(request, 'admin_applications.html', {
         'applications': applications,
-        'status_filter': status_filter,
         'search_query': search_query,
     })
 
@@ -410,58 +550,6 @@ def admin_applications(request):
 @staff_member_required(login_url='/login/')
 def admin_application_detail(request, app_id):
     application = Application.objects.get(id=app_id)
-    if request.method == 'POST':
-        status = request.POST.get('status')
-        remarks = request.POST.get('remarks', '')
-        application.status = status
-        application.remarks = remarks
-        application.save()
-
-        # Feature: Email — notify student when application is approved or rejected
-        student = application.student
-        courses_dict = _get_courses_dict()
-        course_name = courses_dict.get(application.preference1, application.preference1)
-        if status == 'Approved':
-            _send_email(
-                subject='Application Approved — Congratulations!',
-                body=(
-                    f"Dear {student.get_full_name()},\n\n"
-                    "Congratulations! We are pleased to inform you that your admission "
-                    "application has been APPROVED.\n\n"
-                    f"  Application ID  : {application.id}\n"
-                    f"  Program         : {course_name}\n"
-                    f"  Status          : Approved\n"
-                    + (f"  Remarks         : {remarks}\n" if remarks else "")
-                    + "\nPlease log in to your portal to complete further admission formalities:\n"
-                    "  http://127.0.0.1:8000/my-applications/\n\n"
-                    "Regards,\n"
-                    "Admissions Office\n"
-                    "UIET, University of Jammu"
-                ),
-                recipient_email=student.email,
-            )
-        elif status == 'Rejected':
-            _send_email(
-                subject='Application Status Update',
-                body=(
-                    f"Dear {student.get_full_name()},\n\n"
-                    "We regret to inform you that your admission application could not be approved "
-                    "at this time.\n\n"
-                    f"  Application ID  : {application.id}\n"
-                    f"  Program         : {course_name}\n"
-                    f"  Status          : Rejected\n"
-                    + (f"  Reason          : {remarks}\n" if remarks else "")
-                    + "\nYou may contact the admissions office for further guidance.\n"
-                    "  http://127.0.0.1:8000/my-applications/\n\n"
-                    "Regards,\n"
-                    "Admissions Office\n"
-                    "UIET, University of Jammu"
-                ),
-                recipient_email=student.email,
-            )
-
-        messages.success(request, f'Application {status} successfully!')
-        return redirect('admin_applications')
     return render(request, 'admin_application_detail.html', {
         'application': application,
         'courses_dict': _get_courses_dict(),
@@ -563,19 +651,13 @@ def reset_password(request, uidb64, token):
 @staff_member_required(login_url='/login/')
 def export_csv(request):
     """Feature 2: Export applications as CSV."""
-    status_filter = request.GET.get('status', 'all')
-    if status_filter == 'all':
-        applications = Application.objects.all().order_by('-applied_at')
-    else:
-        applications = Application.objects.filter(
-            status=status_filter
-        ).order_by('-applied_at')
+    applications = Application.objects.all().order_by('-applied_at')
 
     courses_dict = _get_courses_dict()
 
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = (
-        f'attachment; filename="applications_{status_filter}.csv"'
+        'attachment; filename="applications.csv"'
     )
 
     writer = csv.writer(response)
@@ -584,11 +666,11 @@ def export_csv(request):
         'Category', 'Gender', 'JEE Score', 'CUET Score',
         'Physics', 'Chemistry', 'Math', 'Max Marks',
         'Total Marks', 'Percentage (%)', 'Board', 'School',
-        'Status', 'Applied On', 'Remarks',
+        'Applied On'
     ])
     for app in applications:
         writer.writerow([
-            app.student.get_full_name(),
+            app.full_name,
             app.student.email,
             courses_dict.get(app.preference1, app.preference1),
             courses_dict.get(app.preference2, app.preference2),
@@ -604,28 +686,39 @@ def export_csv(request):
             app.percentage,
             app.board_name,
             app.school_name,
-            app.status,
             app.applied_at.strftime('%d %b %Y'),
-            app.remarks or '',
         ])
     return response
 
 
 @staff_member_required(login_url='/login/')
 def merit_list(request):
-    """Features 5: Course-filtered merit list."""
+    """Features 5: Course-filtered merit list with top-n."""
     course_filter = request.GET.get('course', 'all')
-    approved = Application.objects.filter(status='Approved')
+    top_n = request.GET.get('top_n', '').strip()
+
+    applications = Application.objects.all()
     if course_filter != 'all':
-        approved = approved.filter(preference1=course_filter)
-    approved = approved.order_by('-physics_marks', '-chemistry_marks', '-math_marks')
+        applications = applications.filter(preference1=course_filter)
+    
+    # Sort by entrance scores first, then board percentage
+    applications = applications.order_by(
+        F('jee_score').desc(nulls_last=True),
+        F('cuet_score').desc(nulls_last=True),
+        F('board_percentage').desc(nulls_last=True),
+        '-physics_marks', '-chemistry_marks', '-math_marks'
+    )
+
+    if top_n.isdigit() and int(top_n) > 0:
+        applications = applications[:int(top_n)]
 
     courses_dict = _get_courses_dict()
-    course_list = list(courses_dict.items())   # [(code, name), ...]
+    course_list = list(courses_dict.items())
 
     return render(request, 'merit_list.html', {
-        'applications': approved,
+        'applications': applications,
         'course_filter': course_filter,
+        'top_n': top_n,
         'courses_dict': courses_dict,
         'course_list': course_list,
     })
@@ -635,11 +728,23 @@ def merit_list(request):
 def download_merit_pdf(request):
     """Feature 6: Download merit list as PDF."""
     course_filter = request.GET.get('course', 'all')
-    approved = Application.objects.filter(status='Approved')
+    top_n = request.GET.get('top_n', '').strip()
+
+    applications = Application.objects.all()
     if course_filter != 'all':
-        approved = approved.filter(preference1=course_filter)
-    approved = approved.order_by('-physics_marks', '-chemistry_marks', '-math_marks')
-    approved = list(approved)
+        applications = applications.filter(preference1=course_filter)
+    
+    applications = applications.order_by(
+        F('jee_score').desc(nulls_last=True),
+        F('cuet_score').desc(nulls_last=True),
+        F('board_percentage').desc(nulls_last=True),
+        '-physics_marks', '-chemistry_marks', '-math_marks'
+    )
+
+    if top_n.isdigit() and int(top_n) > 0:
+        applications = applications[:int(top_n)]
+        
+    approved = list(applications)
 
     courses_dict = _get_courses_dict()
     course_label = (
@@ -714,7 +819,7 @@ def download_merit_pdf(request):
     for i, app in enumerate(approved, 1):
         table_data.append([
             str(i),
-            app.student.get_full_name(),
+            app.full_name,
             app.category,
             courses_dict.get(app.preference1, app.preference1),
             str(app.jee_score) if app.jee_score is not None else 'N/A',
@@ -896,8 +1001,8 @@ def download_pdf(request, app_id):
 
     # Application Info
     info_data = [[
-        'Application Status:', application.status,
         'Applied On:', application.applied_at.strftime('%d %B %Y'),
+        'Application ID:', str(application.id),
     ]]
     info_table = Table(info_data, colWidths=[4 * cm, 5 * cm, 4 * cm, 5 * cm])
     info_table.setStyle(TableStyle([
@@ -1041,16 +1146,23 @@ def download_pdf(request, app_id):
         "admission.",
         normal_style,
     ))
-    elements.append(Spacer(1, 1 * cm))
+    elements.append(Spacer(1, 0.5 * cm))
 
-    # Signature area
-    sig_data = [['Student Signature:', '', 'Date:', '']]
+    # Signature — embed the uploaded signature image
+    if application.signature:
+        try:
+            sig_path = application.signature.path
+            sig_img = Image(sig_path, width=5 * cm, height=2 * cm)
+            sig_data = [['Student Signature:', sig_img, 'Date:', application.applied_at.strftime('%d %B %Y')]]
+        except Exception:
+            sig_data = [['Student Signature:', '(uploaded)', 'Date:', application.applied_at.strftime('%d %B %Y')]]
+    else:
+        sig_data = [['Student Signature:', '', 'Date:', application.applied_at.strftime('%d %B %Y')]]
     sig_table = Table(sig_data, colWidths=[4 * cm, 6 * cm, 2 * cm, 5 * cm])
     sig_table.setStyle(TableStyle([
         ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
         ('FONTSIZE', (0, 0), (-1, -1), 10),
-        ('LINEBELOW', (1, 0), (1, 0), 1, colors.black),
-        ('LINEBELOW', (3, 0), (3, 0), 1, colors.black),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ('PADDING', (0, 0), (-1, -1), 6),
     ]))
     elements.append(sig_table)
@@ -1264,3 +1376,78 @@ def generate_acknowledgment_pdf(request):
         f'attachment; filename="acknowledgment_{application.id}.pdf"'
     )
     return response
+
+
+# ─── Custom Admin Pages for Admission Round & Merit List PDFs ────────────────
+
+@staff_member_required(login_url='/login/')
+def admin_admission_round(request):
+    """View to manage the singleton AdmissionRound record."""
+    round_record = AdmissionRound.objects.first()
+    if not round_record:
+        round_record = AdmissionRound.objects.create(current_round='closed')
+
+    if request.method == 'POST':
+        form = AdmissionRoundForm(request.POST, instance=round_record)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Admission round updated successfully!')
+            return redirect('admin_admission_round')
+    else:
+        form = AdmissionRoundForm(instance=round_record)
+
+    return render(request, 'admin_admission_round.html', {
+        'form': form,
+        'current_round': round_record.get_current_round_display(),
+    })
+
+
+@staff_member_required(login_url='/login/')
+def admin_merit_list_pdfs(request):
+    """List all Merit List PDFs and provide form to add new."""
+    pdfs = MeritListPDF.objects.all()
+    form = MeritListPDFForm()
+    return render(request, 'admin_merit_pdfs.html', {
+        'pdfs': pdfs,
+        'form': form,
+    })
+
+
+@staff_member_required(login_url='/login/')
+def admin_merit_list_pdf_add(request):
+    """Handle adding a new Merit List PDF."""
+    if request.method == 'POST':
+        form = MeritListPDFForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Merit list PDF uploaded successfully!')
+        else:
+            messages.error(request, 'Failed to upload PDF. Please check the file and try again.')
+    return redirect('admin_merit_list_pdfs')
+
+
+@staff_member_required(login_url='/login/')
+def admin_merit_list_pdf_toggle(request, pdf_id):
+    """Toggle publication status of a Merit List PDF."""
+    try:
+        pdf = MeritListPDF.objects.get(id=pdf_id)
+        pdf.is_published = not pdf.is_published
+        pdf.save()
+        status = 'published' if pdf.is_published else 'unpublished'
+        messages.success(request, f'Merit List "{pdf.title}" has been {status}.')
+    except MeritListPDF.DoesNotExist:
+        messages.error(request, 'Merit List PDF not found.')
+    return redirect('admin_merit_list_pdfs')
+
+
+@staff_member_required(login_url='/login/')
+def admin_merit_list_pdf_delete(request, pdf_id):
+    """Delete a Merit List PDF."""
+    try:
+        pdf = MeritListPDF.objects.get(id=pdf_id)
+        title = pdf.title
+        pdf.delete()
+        messages.success(request, f'Merit List "{title}" has been deleted.')
+    except MeritListPDF.DoesNotExist:
+        messages.error(request, 'Merit List PDF not found.')
+    return redirect('admin_merit_list_pdfs')

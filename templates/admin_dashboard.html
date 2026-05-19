@@ -17,24 +17,24 @@
             </div>
         </div>
         <div class="col-md-3">
-            <div class="stat-card stat-card-orange">
-                <i class="fas fa-clock fa-2x mb-2 opacity-75"></i>
-                <h2>{{ pending }}</h2>
-                <h6>Pending</h6>
+            <div class="stat-card stat-card-orange" style="background: linear-gradient(135deg, #0d6efd, #0b5ed7);">
+                <i class="fas fa-graduation-cap fa-2x mb-2 opacity-75"></i>
+                <h2>{{ round1 }}</h2>
+                <h6>Round 1 (JEE)</h6>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="stat-card stat-card-green">
-                <i class="fas fa-check-circle fa-2x mb-2 opacity-75"></i>
-                <h2>{{ approved }}</h2>
-                <h6>Approved</h6>
+            <div class="stat-card stat-card-green" style="background: linear-gradient(135deg, #198754, #157347);">
+                <i class="fas fa-university fa-2x mb-2 opacity-75"></i>
+                <h2>{{ round2 }}</h2>
+                <h6>Round 2 (CUET)</h6>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="stat-card stat-card-red">
-                <i class="fas fa-times-circle fa-2x mb-2 opacity-75"></i>
-                <h2>{{ rejected }}</h2>
-                <h6>Rejected</h6>
+            <div class="stat-card stat-card-red" style="background: linear-gradient(135deg, #fd7e14, #e0690b);">
+                <i class="fas fa-school fa-2x mb-2 opacity-75"></i>
+                <h2>{{ round3 }}</h2>
+                <h6>Round 3 (Board)</h6>
             </div>
         </div>
     </div>
@@ -47,15 +47,15 @@
                 <div class="card-header text-white py-3"
                      style="background: linear-gradient(135deg, #0d1642, #1a237e);">
                     <h5 class="mb-0">
-                        <i class="fas fa-chart-pie me-2"></i>Application Status
+                        <i class="fas fa-chart-pie me-2"></i>Applications by Round
                     </h5>
                 </div>
                 <div class="card-body d-flex align-items-center justify-content-center py-4">
                     <div style="max-width: 280px; width: 100%;">
-                        <canvas id="statusChart"
-                            data-labels='{{ chart_status_labels }}'
-                            data-values='{{ chart_status_data }}'
-                            data-colors='{{ chart_status_colors }}'>
+                        <canvas id="roundChart"
+                            data-labels='{{ chart_round_labels }}'
+                            data-values='{{ chart_round_data }}'
+                            data-colors='{{ chart_round_colors }}'>
                         </canvas>
                     </div>
                 </div>
@@ -98,13 +98,6 @@
                     </a>
                 </div>
                 <div class="col-md-3">
-                    <a href="/admin-applications/?status=Pending"
-                       class="btn btn-outline-warning w-100 py-3">
-                        <i class="fas fa-clock fa-2x d-block mb-2"></i>
-                        Pending Review
-                    </a>
-                </div>
-                <div class="col-md-3">
                     <a href="/merit-list/" class="btn btn-outline-success w-100 py-3">
                         <i class="fas fa-trophy fa-2x d-block mb-2"></i>
                         Merit List
@@ -116,8 +109,21 @@
                         Manage Courses
                     </a>
                 </div>
+                <div class="col-md-3">
+                    <a href="/admin-admission-round/" class="btn btn-outline-warning w-100 py-3"
+                       style="border-width: 2px;">
+                        <i class="fas fa-calendar-alt fa-2x d-block mb-2"></i>
+                        Admission Round Control
+                    </a>
+                </div>
             </div>
             <div class="row g-3 mt-1">
+                <div class="col-md-3">
+                    <a href="/admin-merit-list-pdfs/" class="btn btn-outline-dark w-100 py-2"
+                       style="border-width: 2px; color: #6f42c1; border-color: #6f42c1;">
+                        <i class="fas fa-file-upload me-2"></i>Publish Merit List PDF
+                    </a>
+                </div>
                 <div class="col-md-3">
                     <a href="/admin-export-csv/" class="btn btn-outline-secondary w-100 py-2">
                         <i class="fas fa-file-csv me-2"></i>Export All CSV
@@ -144,26 +150,18 @@
                         <tr>
                             <th>Student Name</th>
                             <th>Preference 1</th>
+                            <th>Applied Round</th>
                             <th>Applied On</th>
-                            <th>Status</th>
                             <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for app in recent_applications %}
                         <tr>
-                            <td class="fw-semibold">{{ app.student.get_full_name }}</td>
+                            <td class="fw-semibold">{{ app.full_name }}</td>
                             <td>{{ app.get_preference1_display }}</td>
+                            <td>{{ app.applied_round }}</td>
                             <td>{{ app.applied_at|date:"d M Y" }}</td>
-                            <td>
-                                {% if app.status == 'Pending' %}
-                                    <span class="badge bg-warning text-dark">⏳ Pending</span>
-                                {% elif app.status == 'Approved' %}
-                                    <span class="badge bg-success">✅ Approved</span>
-                                {% else %}
-                                    <span class="badge bg-danger">❌ Rejected</span>
-                                {% endif %}
-                            </td>
                             <td>
                                 <a href="/admin-applications/{{ app.id }}/"
                                    class="btn btn-sm btn-primary">
@@ -192,20 +190,20 @@
 (function () {
     'use strict';
 
-    // ── Status Doughnut ───────────────────────────────────────────────────────
-    var sc = document.getElementById('statusChart');
-    if (sc) {
-        var statusLabels = JSON.parse(sc.dataset.labels || '[]');
-        var statusData   = JSON.parse(sc.dataset.values || '[]');
-        var statusColors = JSON.parse(sc.dataset.colors || '[]');
-
-        new Chart(sc, {
+    // ── Round Doughnut ─────────────────────────────────────────────────────────
+    var rc = document.getElementById('roundChart');
+    if (rc) {
+        var roundLabels = JSON.parse(rc.dataset.labels || '[]');
+        var roundData   = JSON.parse(rc.dataset.values || '[]');
+        var roundColors = JSON.parse(rc.dataset.colors || '[]');
+ 
+        new Chart(rc, {
             type: 'doughnut',
             data: {
-                labels: statusLabels,
+                labels: roundLabels,
                 datasets: [{
-                    data: statusData,
-                    backgroundColor: statusColors,
+                    data: roundData,
+                    backgroundColor: roundColors,
                     borderWidth: 3,
                     borderColor: '#ffffff',
                     hoverOffset: 8

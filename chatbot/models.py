@@ -1,7 +1,5 @@
 from django.db import models
 
-# Link this to your existing Student model from core app
-# from core.models import Student  # uncomment this line in your project
 
 
 class CollegeKnowledge(models.Model):
@@ -40,7 +38,6 @@ class CollegeKnowledge(models.Model):
 
 class ChatSession(models.Model):
     """Stores each chat conversation"""
-    # student = models.ForeignKey(Student, on_delete=models.SET_NULL, null=True, blank=True)
     session_id = models.CharField(max_length=100, unique=True)
     started_at = models.DateTimeField(auto_now_add=True)
     last_active = models.DateTimeField(auto_now=True)

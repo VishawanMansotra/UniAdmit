@@ -32,12 +32,17 @@
                     </div>
                     {% endif %}
                     <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">First Name</label>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">First Name <span class="text-danger">*</span></label>
                             {{ form.first_name }}
                             <div class="text-danger small">{{ form.first_name.errors }}</div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Middle Name</label>
+                            {{ form.middle_name }}
+                            <div class="text-danger small">{{ form.middle_name.errors }}</div>
+                        </div>
+                        <div class="col-md-4">
                             <label class="form-label fw-bold">Last Name</label>
                             {{ form.last_name }}
                             <div class="text-danger small">{{ form.last_name.errors }}</div>
@@ -53,6 +58,11 @@
                             <div class="text-danger small">{{ form.phone.errors }}</div>
                         </div>
                         <div class="col-md-6">
+                            <label class="form-label fw-bold">Gender</label>
+                            {{ form.gender }}
+                            <div class="text-danger small">{{ form.gender.errors }}</div>
+                        </div>
+                        <div class="col-md-6">
                             <label class="form-label fw-bold">Date of Birth</label>
                             {{ form.date_of_birth }}
                             <div class="text-danger small">{{ form.date_of_birth.errors }}</div>
@@ -62,11 +72,7 @@
                             {{ form.address }}
                             <div class="text-danger small">{{ form.address.errors }}</div>
                         </div>
-                        <div class="col-12">
-                            <label class="form-label fw-bold">Profile Photo (Optional)</label>
-                            {{ form.photo }}
-                            <div class="text-danger small">{{ form.photo.errors }}</div>
-                        </div>
+
                         <div class="col-md-6">
                             <label class="form-label fw-bold">Password</label>
                             {{ form.password }}

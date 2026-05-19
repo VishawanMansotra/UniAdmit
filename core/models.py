@@ -1,13 +1,21 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.exceptions import ValidationError
+
+def validate_dob_year(value):
+    if value.year < 2000:
+        raise ValidationError("Date of birth must be from year 2000 onwards.")
+
 
 
 class StudentProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    middle_name = models.CharField(max_length=100, blank=True, null=True)
     phone = models.CharField(max_length=15)
-    date_of_birth = models.DateField()
+    gender = models.CharField(max_length=10, blank=True, null=True)
+    date_of_birth = models.DateField(validators=[validate_dob_year])
     address = models.TextField()
-    photo = models.ImageField(upload_to='photos/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -29,10 +37,44 @@ class Course(models.Model):
         return f"{self.code} — {self.name}"
 
 
+class AdmissionRound(models.Model):
+    """
+    Singleton model — admin creates ONE record and updates it to control
+    which admission round is currently active.
+    """
+    ROUND_CHOICES = [
+        ('closed',       'Closed — No Applications Accepted'),
+        ('round1_jee',   'Round 1 — JEE Mains 2026'),
+        ('round2_cuet',  'Round 2 — CUET UG'),
+        ('round3_board', 'Round 3 — 10+2 Board Percentage'),
+    ]
+    current_round = models.CharField(
+        max_length=20,
+        choices=ROUND_CHOICES,
+        default='closed',
+        help_text='Select the active admission round. Only one record should exist.'
+    )
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Admission Round Control'
+        verbose_name_plural = 'Admission Round Control'
+
+    def __str__(self):
+        return f"Active Round: {self.get_current_round_display()}"
+
+    @classmethod
+    def get_active(cls):
+        """Returns the current round string, defaults to 'closed' if no record exists."""
+        obj = cls.objects.first()
+        return obj.current_round if obj else 'closed'
+
+
 class Application(models.Model):
     PROGRAM_CHOICES = [
         ('CSE', 'B.Tech Computer Science Engineering'),
         ('CIVIL', 'B.Tech Civil Engineering'),
+        ('ECE', 'B.Tech Electronics and Communication Engineering'),
     ]
     GENDER_CHOICES = [
         ('Male', 'Male'),
@@ -47,28 +89,39 @@ class Application(models.Model):
         ('EWS', 'EWS'),
         ('PWD', 'PWD'),
     ]
-    STATUS_CHOICES = [
-        ('Pending', 'Pending'),
-        ('Approved', 'Approved'),
-        ('Rejected', 'Rejected'),
-    ]
-
     # Student
     student = models.ForeignKey(User, on_delete=models.CASCADE)
 
     # Program Preferences
     preference1 = models.CharField(max_length=10, choices=PROGRAM_CHOICES)
     preference2 = models.CharField(max_length=10, choices=PROGRAM_CHOICES)
+    preference3 = models.CharField(max_length=10, choices=PROGRAM_CHOICES, blank=True, null=True)
+
+    # Admission Round tracking
+    applied_round = models.CharField(
+        max_length=20,
+        default='round1_jee',
+        help_text='Which round this application was submitted under.'
+    )
 
     # Exam Scores
-    jee_score = models.FloatField(blank=True, null=True)
-    cuet_score = models.FloatField(blank=True, null=True)
+    jee_score = models.DecimalField(max_digits=10, decimal_places=7, blank=True, null=True, validators=[MinValueValidator(0), MaxValueValidator(100)])
+    cuet_score = models.DecimalField(max_digits=10, decimal_places=7, blank=True, null=True, validators=[MinValueValidator(0), MaxValueValidator(100)])
+    board_percentage = models.DecimalField(
+        max_digits=5, decimal_places=2,
+        blank=True, null=True,
+        validators=[MinValueValidator(0), MaxValueValidator(100)],
+        help_text='Overall 10+2 board percentage (for Round 3 only).'
+    )
 
     # Personal Details
+    first_name = models.CharField(max_length=100, blank=True, null=True)
+    middle_name = models.CharField(max_length=100, blank=True, null=True)
+    last_name = models.CharField(max_length=100, blank=True, null=True)
     father_name = models.CharField(max_length=100)
     mother_name = models.CharField(max_length=100)
     gender = models.CharField(max_length=10, choices=GENDER_CHOICES)
-    date_of_birth = models.DateField()
+    date_of_birth = models.DateField(validators=[validate_dob_year])
     category = models.CharField(max_length=20, choices=CATEGORY_CHOICES)
 
     # Contact
@@ -85,17 +138,22 @@ class Application(models.Model):
     board_name = models.CharField(max_length=100)
     school_name = models.CharField(max_length=200)
 
-    # Documents
+    # Documents — Personal
+    passport_photo = models.ImageField(upload_to='documents/photos/', blank=True, null=True)
     marksheet_10th = models.FileField(upload_to='documents/10th/')
     marksheet_12th = models.FileField(upload_to='documents/12th/')
+    aadhar_card = models.FileField(upload_to='documents/aadhar/', blank=True, null=True)
+    character_certificate = models.FileField(upload_to='documents/character/', blank=True, null=True)
     category_certificate = models.FileField(upload_to='documents/category/', blank=True, null=True)
     domicile_certificate = models.FileField(upload_to='documents/domicile/', blank=True, null=True)
+    migration_certificate = models.FileField(upload_to='documents/migration/', blank=True, null=True)
     signature = models.ImageField(upload_to='signatures/')
 
-    # Status
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
+    # Documents — Score Verification
+    entrance_scorecard = models.FileField(upload_to='documents/scorecard/', blank=True, null=True,
+        help_text='Upload JEE / CUET scorecard PDF or image.')
+
     applied_at = models.DateTimeField(auto_now_add=True)
-    remarks = models.TextField(blank=True, null=True)
 
     @property
     def total_marks(self):
@@ -107,8 +165,17 @@ class Application(models.Model):
             return round((self.total_marks / (self.max_marks * 3)) * 100, 2)
         return 0.0
 
+    @property
+    def full_name(self):
+        parts = [
+            self.first_name or self.student.first_name,
+            self.middle_name,
+            self.last_name or self.student.last_name
+        ]
+        return " ".join([p for p in parts if p]).strip()
+
     def __str__(self):
-        return f"{self.student.get_full_name()} - {self.preference1}"
+        return f"{self.full_name} - {self.preference1}"
 
 
 class Payment(models.Model):
@@ -130,3 +197,17 @@ class Payment(models.Model):
 
     def __str__(self):
         return f"Payment({self.application.student.get_full_name()} - {self.status})"
+
+
+class MeritListPDF(models.Model):
+    title = models.CharField(max_length=200, help_text="e.g., Round 1 - CSE Merit List")
+    pdf_file = models.FileField(upload_to='merit_lists/')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    is_published = models.BooleanField(default=True, help_text="Show on homepage?")
+
+    class Meta:
+        verbose_name = "Merit List PDF"
+        ordering = ['-uploaded_at']
+
+    def __str__(self):
+        return self.title

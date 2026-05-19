@@ -18,23 +18,10 @@
 
     <div class="card shadow">
         <!-- Card Header -->
-        <div class="card-header text-white py-3"
-             style="background: linear-gradient(135deg, #0d1642, #1a237e);">
+        <div class="card-header text-white py-3" style="background: linear-gradient(135deg, #0d1642, #1a237e);">
             <div class="d-flex align-items-center">
-                <div class="me-3">
-                    {% if student.photo %}
-                        <img src="{{ student.photo.url }}"
-                             class="rounded-circle"
-                             style="width:55px; height:55px; object-fit:cover; border:3px solid rgba(255,255,255,0.3);">
-                    {% else %}
-                        <div class="rounded-circle d-flex align-items-center justify-content-center"
-                             style="width:55px; height:55px; background:rgba(255,255,255,0.15); border:3px solid rgba(255,255,255,0.3);">
-                            <i class="fas fa-user fa-lg"></i>
-                        </div>
-                    {% endif %}
-                </div>
                 <div>
-                    <h6 class="mb-0 fw-bold">{{ request.user.first_name }} {{ request.user.last_name }}</h6>
+                    <h6 class="mb-0 fw-bold">{{ request.user.first_name }} {% if student.middle_name %}{{ student.middle_name }} {% endif %}{{ request.user.last_name }}</h6>
                     <small class="opacity-75">{{ request.user.email }}</small>
                 </div>
             </div>
@@ -46,13 +33,19 @@
 
                 <!-- Name Row -->
                 <div class="row g-3 mb-3">
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <label class="form-label fw-semibold">
                             <i class="fas fa-user me-1 text-primary"></i>First Name
                         </label>
                         {{ form.first_name }}
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-user me-1 text-primary"></i>Middle Name
+                        </label>
+                        {{ form.middle_name }}
+                    </div>
+                    <div class="col-md-4">
                         <label class="form-label fw-semibold">
                             <i class="fas fa-user me-1 text-primary"></i>Last Name
                         </label>
@@ -84,14 +77,7 @@
                     {{ form.address }}
                 </div>
 
-                <!-- Photo -->
-                <div class="mb-4">
-                    <label class="form-label fw-semibold">
-                        <i class="fas fa-camera me-1 text-primary"></i>Profile Photo
-                        <small class="text-muted fw-normal">(optional — leave blank to keep current)</small>
-                    </label>
-                    {{ form.photo }}
-                </div>
+
 
                 <!-- Email (read-only) -->
                 <div class="mb-4">

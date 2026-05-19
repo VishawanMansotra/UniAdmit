@@ -12,10 +12,16 @@
             <small class="text-muted">Ranked by academic performance (Physics → Chemistry → Math)</small>
         </div>
         {% if request.user.is_staff %}
-        <a href="/download-merit-pdf/?course={{ course_filter }}"
-           class="btn btn-success">
-            <i class="fas fa-file-pdf me-2"></i>Download PDF
-        </a>
+        <form method="GET" action="/download-merit-pdf/" class="d-flex gap-2 align-items-center">
+            <input type="hidden" name="course" value="{{ course_filter }}">
+            <div class="input-group">
+                <span class="input-group-text bg-light text-dark fw-bold">Top N:</span>
+                <input type="number" name="top_n" class="form-control" value="{{ top_n|default:'' }}" placeholder="e.g. 60" style="width: 100px;">
+            </div>
+            <button type="submit" class="btn btn-success text-nowrap">
+                <i class="fas fa-file-pdf me-2"></i>Download PDF
+            </button>
+        </form>
         {% endif %}
     </div>
 
@@ -75,12 +81,9 @@
                             <th>Student Name</th>
                             <th>Category</th>
                             <th>Program (Pref. 1)</th>
-                            <th>Physics</th>
-                            <th>Chemistry</th>
-                            <th>Math</th>
-                            <th>Total</th>
-                            <th>%</th>
-                            <th>JEE Score</th>
+                            <th>JEE</th>
+                            <th>CUET</th>
+                            <th>Board %</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -97,7 +100,7 @@
                                     <span class="text-muted fw-bold">{{ forloop.counter }}</span>
                                 {% endif %}
                             </td>
-                            <td>{{ app.student.get_full_name }}</td>
+                            <td>{{ app.full_name }}</td>
                             <td>
                                 <span class="badge bg-light text-dark border">{{ app.category }}</span>
                             </td>
@@ -108,16 +111,17 @@
                                     {{ app.preference1 }}
                                 {% endfor %}
                             </td>
-                            <td>{{ app.physics_marks }}</td>
-                            <td>{{ app.chemistry_marks }}</td>
-                            <td>{{ app.math_marks }}</td>
-                            <td class="fw-bold text-primary">{{ app.total_marks }}</td>
+                            <td>{{ app.jee_score|default:"-" }}</td>
+                            <td>{{ app.cuet_score|default:"-" }}</td>
                             <td>
-                                <span class="badge {% if app.percentage >= 75 %}bg-success{% elif app.percentage >= 60 %}bg-warning text-dark{% else %}bg-danger{% endif %}">
-                                    {{ app.percentage }}%
+                                {% if app.board_percentage %}
+                                <span class="badge {% if app.board_percentage >= 75 %}bg-success{% elif app.board_percentage >= 60 %}bg-warning text-dark{% else %}bg-danger{% endif %}">
+                                    {{ app.board_percentage }}%
                                 </span>
+                                {% else %}
+                                -
+                                {% endif %}
                             </td>
-                            <td>{{ app.jee_score|default:"N/A" }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>

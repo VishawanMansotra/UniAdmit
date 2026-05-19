@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block title %}Admission Round Control — Admin{% endblock %}
+{% block content %}
+<div class="container my-5" style="max-width: 800px;">
+
+    <!-- Header -->
+    <div class="d-flex align-items-center mb-4">
+        <a href="/admin-dashboard/" class="btn btn-outline-secondary me-3">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <div>
+            <h3 class="mb-0 fw-bold text-warning" style="color: #fd7e14 !important;">
+                <i class="fas fa-calendar-alt me-2"></i>Admission Round Control
+            </h3>
+            <small class="text-muted">Manage the globally active admission round</small>
+        </div>
+    </div>
+
+    <!-- Active Round Banner -->
+    <div class="card shadow mb-4" style="border-left: 5px solid #198754;">
+        <div class="card-body d-flex align-items-center p-4">
+            <i class="fas fa-check-circle fa-3x text-success me-4"></i>
+            <div>
+                <h5 class="mb-1 text-muted">Currently Active Round:</h5>
+                <h2 class="mb-0 fw-bold text-dark">{{ current_round }}</h2>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Form -->
+    <div class="card shadow">
+        <div class="card-header text-white" style="background: linear-gradient(135deg, #0d1642, #fd7e14);">
+            <h5 class="mb-0"><i class="fas fa-edit me-2"></i>Change Active Round</h5>
+        </div>
+        <div class="card-body p-4">
+            <form method="POST">
+                {% csrf_token %}
+                <div class="mb-4">
+                    <label class="form-label fw-semibold">Select Round</label>
+                    {{ form.current_round }}
+                </div>
+                
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-warning btn-lg fw-bold" style="background-color: #fd7e14; color: white; border: none;">
+                        <i class="fas fa-save me-2"></i>Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Info Note -->
+    <div class="alert mt-4" style="background:#fff3cd; border-left:4px solid #fd7e14;">
+        <i class="fas fa-info-circle me-2 text-warning" style="color: #fd7e14 !important;"></i>
+        <strong>What does this do?</strong> Changing the active round instantly updates the student application form to require the appropriate score inputs (e.g., JEE score for Round 1, CUET score for Round 2) and hides the others.
+    </div>
+
+</div>
+{% endblock %}

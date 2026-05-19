@@ -50,3 +50,6 @@ uploads/
 
 # Security
 .env
+
+# Temporary
+scratch/
