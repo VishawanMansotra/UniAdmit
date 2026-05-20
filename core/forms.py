@@ -239,28 +239,30 @@ class ApplicationForm(forms.Form):
 
     # Documents — Personal
     passport_photo = forms.ImageField(
-        widget=forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/jpeg,image/png,image/jpg'}),
-        help_text='Upload a recent passport-size photograph (JPG/PNG only).'
+        widget=forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/jpeg,image/jpg'}),
+        help_text='Upload a recent passport-size photograph (JPG/JPEG only, 20-50 KB, 200x230 to 400x500 pixels).'
     )
-    marksheet_10th = forms.FileField(widget=forms.FileInput(attrs={'class': 'form-control', 'accept': '.pdf,image/jpeg,image/png,image/jpg'}))
-    marksheet_12th = forms.FileField(widget=forms.FileInput(attrs={'class': 'form-control', 'accept': '.pdf,image/jpeg,image/png,image/jpg'}))
+    marksheet_10th = forms.FileField(widget=forms.FileInput(attrs={'class': 'form-control', 'accept': '.pdf'}), help_text='PDF only, 100-500 KB.')
+    marksheet_12th = forms.FileField(widget=forms.FileInput(attrs={'class': 'form-control', 'accept': '.pdf'}), help_text='PDF only, 100-500 KB.')
     aadhar_card = forms.FileField(
-        widget=forms.FileInput(attrs={'class': 'form-control', 'accept': '.pdf,image/jpeg,image/png,image/jpg'}),
-        help_text='Upload scanned copy of Aadhar Card (PDF or Image).'
+        widget=forms.FileInput(attrs={'class': 'form-control', 'accept': '.pdf'}),
+        help_text='Upload scanned copy of Aadhar Card (PDF only, 100-500 KB).'
     )
     character_certificate = forms.FileField(
-        widget=forms.FileInput(attrs={'class': 'form-control', 'accept': '.pdf,image/jpeg,image/png,image/jpg'}),
-        help_text='Character certificate from last attended institution.'
+        widget=forms.FileInput(attrs={'class': 'form-control', 'accept': '.pdf'}),
+        help_text='Character certificate from last attended institution (PDF only, 100-500 KB).'
     )
     category_certificate = forms.FileField(
-        required=False, widget=forms.FileInput(attrs={'class': 'form-control', 'accept': '.pdf,image/jpeg,image/png,image/jpg'})
+        required=False, widget=forms.FileInput(attrs={'class': 'form-control', 'accept': '.pdf'}),
+        help_text='PDF only, 100-500 KB.'
     )
     domicile_certificate = forms.FileField(
-        required=False, widget=forms.FileInput(attrs={'class': 'form-control', 'accept': '.pdf,image/jpeg,image/png,image/jpg'})
+        required=False, widget=forms.FileInput(attrs={'class': 'form-control', 'accept': '.pdf'}),
+        help_text='PDF only, 100-500 KB.'
     )
     migration_certificate = forms.FileField(
-        required=False, widget=forms.FileInput(attrs={'class': 'form-control', 'accept': '.pdf,image/jpeg,image/png,image/jpg'}),
-        help_text='Required only if passing board is outside J&K.'
+        required=False, widget=forms.FileInput(attrs={'class': 'form-control', 'accept': '.pdf'}),
+        help_text='Required only if passing board is outside J&K (PDF only, 100-500 KB).'
     )
     signature = forms.ImageField(
         widget=forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/jpeg,image/png,image/jpg'}),
@@ -270,72 +272,99 @@ class ApplicationForm(forms.Form):
     # Documents — Score Verification
     entrance_scorecard = forms.FileField(
         required=False,
-        widget=forms.FileInput(attrs={'class': 'form-control', 'accept': '.pdf,image/jpeg,image/png,image/jpg'}),
-        help_text='Upload JEE / CUET scorecard (PDF or Image).'
+        widget=forms.FileInput(attrs={'class': 'form-control', 'accept': '.pdf'}),
+        help_text='Upload JEE / CUET scorecard (PDF only, 100-500 KB).'
     )
 
-    def _validate_image_only(self, file, field_name):
-        """Raise validation error if file is not a JPG/PNG image."""
+    def _validate_passport_photo(self, file):
+        """Validate passport photo for format, size, and dimensions."""
+        if file:
+            ext = file.name.rsplit('.', 1)[-1].lower()
+            if ext not in ['jpg', 'jpeg']:
+                raise forms.ValidationError('Passport photograph must be in JPG or JPEG format.')
+            
+            size_kb = file.size / 1024
+            if not (20 <= size_kb <= 50):
+                raise forms.ValidationError(f'Passport photograph size must be between 20 KB and 50 KB. Current size is {size_kb:.2f} KB.')
+            
+            from PIL import Image
+            try:
+                img = Image.open(file)
+                width, height = img.size
+                if not (200 <= width <= 400) or not (230 <= height <= 500):
+                    raise forms.ValidationError(f'Passport photograph dimensions must be between 200x230 and 400x500 pixels. Current dimensions are {width}x{height} pixels.')
+                file.seek(0)
+            except forms.ValidationError:
+                raise
+            except Exception:
+                raise forms.ValidationError('Invalid image file.')
+
+    def _validate_document_pdf(self, file, doc_name="Document"):
+        """Validate documents/marksheets for PDF format and size."""
+        if file:
+            ext = file.name.rsplit('.', 1)[-1].lower()
+            if ext != 'pdf':
+                raise forms.ValidationError(f'{doc_name} must be in PDF format only.')
+            
+            size_kb = file.size / 1024
+            if not (100 <= size_kb <= 500):
+                raise forms.ValidationError(f'{doc_name} size must be between 100 KB and 500 KB. Current size is {size_kb:.2f} KB.')
+
+    def _validate_signature(self, file):
+        """Validate signature for JPG/PNG format."""
         if file:
             ext = file.name.rsplit('.', 1)[-1].lower()
             if ext not in ['jpg', 'jpeg', 'png']:
-                raise forms.ValidationError('Only JPG and PNG image files are allowed. PDF is not accepted here.')
-
-    def _validate_doc_or_image(self, file):
-        """Raise validation error if file is not a PDF, JPG, or PNG."""
-        if file:
-            ext = file.name.rsplit('.', 1)[-1].lower()
-            if ext not in ['pdf', 'jpg', 'jpeg', 'png']:
-                raise forms.ValidationError('Only PDF, JPG, or PNG files are allowed.')
+                raise forms.ValidationError('Only JPG and PNG image files are allowed for signature.')
 
     def clean_passport_photo(self):
         f = self.cleaned_data.get('passport_photo')
-        self._validate_image_only(f, 'passport_photo')
+        self._validate_passport_photo(f)
         return f
 
     def clean_signature(self):
         f = self.cleaned_data.get('signature')
-        self._validate_image_only(f, 'signature')
+        self._validate_signature(f)
         return f
 
     def clean_marksheet_10th(self):
         f = self.cleaned_data.get('marksheet_10th')
-        self._validate_doc_or_image(f)
+        self._validate_document_pdf(f, '10th Marksheet')
         return f
 
     def clean_marksheet_12th(self):
         f = self.cleaned_data.get('marksheet_12th')
-        self._validate_doc_or_image(f)
+        self._validate_document_pdf(f, '12th Marksheet')
         return f
 
     def clean_aadhar_card(self):
         f = self.cleaned_data.get('aadhar_card')
-        self._validate_doc_or_image(f)
+        self._validate_document_pdf(f, 'Aadhar Card')
         return f
 
     def clean_character_certificate(self):
         f = self.cleaned_data.get('character_certificate')
-        self._validate_doc_or_image(f)
+        self._validate_document_pdf(f, 'Character Certificate')
         return f
 
     def clean_category_certificate(self):
         f = self.cleaned_data.get('category_certificate')
-        self._validate_doc_or_image(f)
+        self._validate_document_pdf(f, 'Category Certificate')
         return f
 
     def clean_domicile_certificate(self):
         f = self.cleaned_data.get('domicile_certificate')
-        self._validate_doc_or_image(f)
+        self._validate_document_pdf(f, 'Domicile Certificate')
         return f
 
     def clean_migration_certificate(self):
         f = self.cleaned_data.get('migration_certificate')
-        self._validate_doc_or_image(f)
+        self._validate_document_pdf(f, 'Migration Certificate')
         return f
 
     def clean_entrance_scorecard(self):
         f = self.cleaned_data.get('entrance_scorecard')
-        self._validate_doc_or_image(f)
+        self._validate_document_pdf(f, 'Entrance Scorecard')
         return f
 
     def clean(self):

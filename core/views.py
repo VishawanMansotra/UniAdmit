@@ -230,10 +230,6 @@ def verify_otp(request):
             }
             profile = StudentProfile.objects.create(**profile_kwargs)
 
-            # Clear session data
-            del request.session['pending_registration']
-            del request.session['otp_secret']
-
             # Send welcome email
             _send_email(
                 subject='Welcome to UniAdmit',
@@ -251,6 +247,13 @@ def verify_otp(request):
                 recipient_email=user.email,
             )
             login(request, user)
+
+            # Clear session data
+            if 'pending_registration' in request.session:
+                del request.session['pending_registration']
+            if 'otp_secret' in request.session:
+                del request.session['otp_secret']
+
             messages.success(request, f'Email verified! Welcome, {user.first_name}. You are now logged in.')
             return redirect('dashboard')
         else:
