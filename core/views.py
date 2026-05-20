@@ -44,16 +44,18 @@ from .forms import StudentRegistrationForm, ProfileEditForm, ApplicationForm, Co
 
 def _get_courses_dict():
     """Returns {code: name} dict from Course model, with fallback."""
-    try:
-        d = {c.code: c.name for c in Course.objects.all()}
-        if d:
-            return d
-    except Exception:
-        pass
-    return {
+    d = {
         'CSE': 'B.Tech Computer Science Engineering',
         'CIVIL': 'B.Tech Civil Engineering',
+        'ECE': 'B.Tech Electronics and Communication Engineering',
     }
+    try:
+        from .models import Course
+        for c in Course.objects.all():
+            d[c.code] = c.name
+    except Exception:
+        pass
+    return d
 
 
 logger = logging.getLogger(__name__)

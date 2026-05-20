@@ -75,12 +75,26 @@
 
                         <div class="col-md-6">
                             <label class="form-label fw-bold">Password</label>
-                            {{ form.password }}
+                            <div class="position-relative">
+                                {{ form.password }}
+                                <i class="fas fa-eye text-muted" id="togglePassword" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; z-index: 10;"></i>
+                            </div>
+                            <!-- Password Requirements Checklist -->
+                            <div id="password-requirements" class="mt-2 small text-muted d-none">
+                                <div id="req-length"><i class="fas fa-times text-danger fw-bold me-1"></i> 8+ characters</div>
+                                <div id="req-uppercase"><i class="fas fa-times text-danger fw-bold me-1"></i> Uppercase letter</div>
+                                <div id="req-lowercase"><i class="fas fa-times text-danger fw-bold me-1"></i> Lowercase letter</div>
+                                <div id="req-number"><i class="fas fa-times text-danger fw-bold me-1"></i> Number</div>
+                                <div id="req-special"><i class="fas fa-times text-danger fw-bold me-1"></i> Special character</div>
+                            </div>
                             <div class="text-danger small">{{ form.password.errors }}</div>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-bold">Confirm Password</label>
-                            {{ form.confirm_password }}
+                            <div class="position-relative">
+                                {{ form.confirm_password }}
+                                <i class="fas fa-eye text-muted" id="toggleConfirmPassword" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; z-index: 10;"></i>
+                            </div>
                             <div class="text-danger small">{{ form.confirm_password.errors }}</div>
                         </div>
                         <div class="col-12 mt-3">
@@ -97,4 +111,80 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const passwordInput = document.querySelector('input[name="password"]');
+        const confirmPasswordInput = document.querySelector('input[name="confirm_password"]');
+        if (!passwordInput) return;
+        
+        const togglePasswordIcon = document.getElementById('togglePassword');
+        const toggleConfirmPasswordIcon = document.getElementById('toggleConfirmPassword');
+        
+        // Password Requirements Elements
+        const reqLength = document.getElementById('req-length');
+        const reqUppercase = document.getElementById('req-uppercase');
+        const reqLowercase = document.getElementById('req-lowercase');
+        const reqNumber = document.getElementById('req-number');
+        const reqSpecial = document.getElementById('req-special');
+
+        function updateRequirement(element, isValid) {
+            const icon = element.querySelector('i');
+            if (isValid) {
+                element.classList.remove('text-muted');
+                element.classList.add('text-success');
+                icon.classList.remove('fa-times', 'text-danger');
+                icon.classList.add('fa-check', 'text-success');
+            } else {
+                element.classList.remove('text-success');
+                element.classList.add('text-muted');
+                icon.classList.remove('fa-check', 'text-success');
+                icon.classList.add('fa-times', 'text-danger');
+            }
+        }
+
+        // Show checklist on focus, hide on blur
+        const reqBox = document.getElementById('password-requirements');
+        passwordInput.addEventListener('focus', function() {
+            reqBox.classList.remove('d-none');
+        });
+        passwordInput.addEventListener('blur', function() {
+            // Keep visible if field has content so user can see remaining rules
+            if (this.value.length === 0) {
+                reqBox.classList.add('d-none');
+            }
+        });
+
+        // Toggle Password Visibility
+        function setupToggle(iconEl, inputEl) {
+            if (iconEl && inputEl) {
+                iconEl.addEventListener('click', function() {
+                    const type = inputEl.getAttribute('type') === 'password' ? 'text' : 'password';
+                    inputEl.setAttribute('type', type);
+                    
+                    if (type === 'text') {
+                        iconEl.classList.remove('fa-eye', 'text-muted');
+                        iconEl.classList.add('fa-eye-slash', 'text-primary');
+                    } else {
+                        iconEl.classList.remove('fa-eye-slash', 'text-primary');
+                        iconEl.classList.add('fa-eye', 'text-muted');
+                    }
+                });
+            }
+        }
+        setupToggle(togglePasswordIcon, passwordInput);
+        setupToggle(toggleConfirmPasswordIcon, confirmPasswordInput);
+
+        // Validate Password on Input
+        passwordInput.addEventListener('input', function() {
+            const val = this.value;
+            
+            updateRequirement(reqLength, val.length >= 8);
+            updateRequirement(reqUppercase, /[A-Z]/.test(val));
+            updateRequirement(reqLowercase, /[a-z]/.test(val));
+            updateRequirement(reqNumber, /[0-9]/.test(val));
+            updateRequirement(reqSpecial, /[!@#$%^&*(),.?":{}|<>\-_+=\[\]\\/`~]/.test(val));
+        });
+    });
+</script>
 {% endblock %}
