@@ -527,6 +527,7 @@ def my_applications(request):
 
 # ─── Admin Views ──────────────────────────────────────────────────────────────
 
+
 @staff_member_required(login_url='/login/')
 def admin_dashboard(request):
     total = Application.objects.count()
@@ -535,32 +536,12 @@ def admin_dashboard(request):
     round3 = Application.objects.filter(applied_round='round3_board').count()
     recent_applications = Application.objects.all().order_by('-applied_at')[:5]
 
-    # Feature 7: Build chart data dynamically from Course model
-    courses_dict = _get_courses_dict()
-    course_labels = list(courses_dict.keys())
-    course_data_vals = [
-        Application.objects.filter(preference1=code).count()
-        for code in course_labels
-    ]
-    default_bar_colors = [
-        '#1565c0', '#1b5e20', '#e65100', '#6a1b9a', '#00838f', '#c62828',
-    ]
-    course_bar_colors = default_bar_colors[:len(course_labels)]
-
     return render(request, 'admin_dashboard.html', {
         'total': total,
         'round1': round1,
         'round2': round2,
         'round3': round3,
         'recent_applications': recent_applications,
-        # Round doughnut chart data
-        'chart_round_labels': json.dumps(['Round 1 (JEE)', 'Round 2 (CUET)', 'Round 3 (Board)']),
-        'chart_round_data': json.dumps([round1, round2, round3]),
-        'chart_round_colors': json.dumps(['#0d6efd', '#198754', '#fd7e14']),
-        # Course bar chart data
-        'chart_course_labels': json.dumps(list(courses_dict.values())),
-        'chart_course_data': json.dumps(course_data_vals),
-        'chart_course_colors': json.dumps(course_bar_colors),
     })
 
 
