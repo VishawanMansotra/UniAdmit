@@ -384,6 +384,13 @@ class ApplicationForm(forms.Form):
             if math_marks is not None and math_marks > max_marks:
                 self.add_error('math_marks', f'Math marks cannot exceed maximum marks ({max_marks}).')
                 
+        jee_score = cleaned_data.get('jee_score')
+        cuet_score = cleaned_data.get('cuet_score')
+        scorecard = cleaned_data.get('entrance_scorecard')
+        
+        if (jee_score or cuet_score) and not scorecard:
+            self.add_error('entrance_scorecard', 'You must upload your Entrance Scorecard if you are providing a JEE or CUET score.')
+
         return cleaned_data
 
     def __init__(self, *args, **kwargs):

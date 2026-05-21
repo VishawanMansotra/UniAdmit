@@ -54,4 +54,15 @@ urlpatterns = [
     # ── Feature: Forgot / Reset Password ───────────────────────────────────
     path('forgot-password/', views.forgot_password, name='forgot_password'),
     path('reset-password/<uidb64>/<token>/', views.reset_password, name='reset_password'),
+
+    # ── Chatbot AI Management ───────────────────────────────────────
+    path('chatbot-knowledge/', views.chatbot_knowledge, name='chatbot_knowledge'),
+    path('chatbot-knowledge/add/', views.chatbot_knowledge_add, name='chatbot_knowledge_add'),
+    path('chatbot-knowledge/<int:entry_id>/edit/', views.chatbot_knowledge_edit, name='chatbot_knowledge_edit'),
+    path('chatbot-knowledge/<int:entry_id>/toggle/', views.chatbot_knowledge_toggle, name='chatbot_knowledge_toggle'),
+    path('chatbot-knowledge/<int:entry_id>/delete/', views.chatbot_knowledge_delete, name='chatbot_knowledge_delete'),
+    path('chatbot-unanswered/', views.chatbot_unanswered, name='chatbot_unanswered'),
+    path('chatbot-unanswered/<int:query_id>/resolve/', views.chatbot_unanswered_resolve, name='chatbot_unanswered_resolve'),
+    path('chatbot-unanswered/<int:query_id>/delete/', views.chatbot_unanswered_delete, name='chatbot_unanswered_delete'),
+    path('chatbot-feedback/', views.chatbot_feedback, name='chatbot_feedback'),
 ]

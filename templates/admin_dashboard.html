@@ -85,6 +85,35 @@
     </div>
 
     <!-- Quick Actions -->
+    <style>
+        .quick-action-chatbot-purple {
+            border: 2px solid #6f42c1; color: #6f42c1;
+            background: rgba(111,66,193,0.05);
+            transition: all 0.22s ease; font-weight: 500;
+        }
+        .quick-action-chatbot-purple:hover {
+            background: #6f42c1; color: #fff; transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(111,66,193,0.3);
+        }
+        .quick-action-chatbot-red {
+            border: 2px solid #dc3545; color: #dc3545;
+            background: rgba(220,53,69,0.05);
+            transition: all 0.22s ease; font-weight: 500;
+        }
+        .quick-action-chatbot-red:hover {
+            background: #dc3545; color: #fff; transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(220,53,69,0.3);
+        }
+        .quick-action-chatbot-teal {
+            border: 2px solid #0d9488; color: #0d9488;
+            background: rgba(13,148,136,0.05);
+            transition: all 0.22s ease; font-weight: 500;
+        }
+        .quick-action-chatbot-teal:hover {
+            background: #0d9488; color: #fff; transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(13,148,136,0.3);
+        }
+    </style>
     <div class="card shadow mb-4">
         <div class="card-header bg-primary text-white">
             <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
@@ -134,7 +163,40 @@
                         <i class="fas fa-file-pdf me-2"></i>Merit List PDF
                     </a>
                 </div>
+                <div class="col-md-3"></div>
             </div>
+
+            <!-- Chatbot AI Controls Sub-panel -->
+            <div class="mt-3 rounded-3 p-3" style="background: linear-gradient(135deg, #f5f0ff 0%, #f0f9ff 100%); border: 1.5px solid #d9c8f7;">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="d-flex align-items-center justify-content-center rounded-2 me-2"
+                         style="width:30px; height:30px; background: linear-gradient(135deg, #6f42c1, #4a2d8f);">
+                        <i class="fas fa-robot text-white" style="font-size:0.85rem;"></i>
+                    </div>
+                    <span class="fw-semibold" style="color: #4a2d8f; font-size: 0.95rem; letter-spacing: 0.3px;">Chatbot AI Controls</span>
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <a href="/chatbot-knowledge/" class="btn w-100 py-3 quick-action-chatbot-purple">
+                            <i class="fas fa-brain fa-2x d-block mb-2"></i>
+                            Train Chatbot
+                        </a>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="/chatbot-unanswered/" class="btn w-100 py-3 quick-action-chatbot-red">
+                            <i class="fas fa-exclamation-circle fa-2x d-block mb-2"></i>
+                            Unanswered Queries
+                        </a>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="/chatbot-feedback/" class="btn w-100 py-3 quick-action-chatbot-teal">
+                            <i class="fas fa-comments fa-2x d-block mb-2"></i>
+                            Chatbot Feedback
+                        </a>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 

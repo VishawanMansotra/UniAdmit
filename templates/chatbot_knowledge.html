@@ -1,0 +1,291 @@
+{% extends 'base.html' %}
+{% block title %}Train Chatbot — Knowledge Base{% endblock %}
+{% block content %}
+<div class="container my-5">
+
+    <!-- Header -->
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+        <div class="d-flex align-items-center">
+            {% if prefill_query_id %}
+            <a href="/chatbot-unanswered/" class="btn btn-outline-secondary me-3">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            {% else %}
+            <a href="/admin-dashboard/" class="btn btn-outline-secondary me-3">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            {% endif %}
+            <div>
+                <h3 class="mb-0 fw-bold" style="color: #6f42c1;">
+                    <i class="fas fa-brain me-2"></i>Train Chatbot — Knowledge Base
+                </h3>
+                <small class="text-muted">Add, edit or remove information the chatbot uses to answer student questions</small>
+            </div>
+        </div>
+        <button class="btn text-white" id="openAddFormBtn"
+                style="background: linear-gradient(135deg,#6f42c1,#4a2d8f); border:none;"
+                data-bs-toggle="collapse" data-bs-target="#addEntryForm">
+            <i class="fas fa-plus me-2"></i>+ Add New Knowledge
+        </button>
+    </div>
+
+
+    <!-- Add Entry Form (collapsible) -->
+    <div class="{% if not prefill_topic %}collapse {% endif %}mb-4" id="addEntryForm">
+        <div class="card shadow" style="{% if prefill_topic %}border:2px solid #a78bfa;{% endif %}">
+            <div class="card-header text-white" style="background: linear-gradient(135deg,#6f42c1,#4a2d8f);">
+                <h5 class="mb-0">
+                    <i class="fas fa-plus-circle me-2"></i>
+                    {% if prefill_topic %}Answer This Student Question{% else %}Add New Knowledge Entry{% endif %}
+                </h5>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST" action="/chatbot-knowledge/add/">
+                    {% csrf_token %}
+                    <!-- Hidden: auto-resolve linked query when saving -->
+                    {% if prefill_query_id %}
+                    <input type="hidden" name="query_id" value="{{ prefill_query_id }}">
+                    {% endif %}
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Category <span class="text-danger">*</span></label>
+                            <select name="category" class="form-select" required>
+                                <option value="">-- Select Category --</option>
+                                {% for val, label in categories %}
+                                <option value="{{ val }}">{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                            {% if prefill_topic %}
+                            <small class="text-muted mt-1 d-block">
+                                <i class="fas fa-arrow-up me-1" style="color:#6f42c1;"></i>Choose the best matching category
+                            </small>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-8">
+                            <label class="form-label fw-semibold">
+                                Topic Title <span class="text-danger">*</span>
+                                {% if prefill_topic %}
+                                <span class="badge ms-2" style="background:#ede0ff; color:#6f42c1; font-size:0.72rem;">
+                                    <i class="fas fa-magic me-1"></i>Pre-filled from student's question
+                                </span>
+                                {% endif %}
+                            </label>
+                            <input type="text" name="topic" id="topicInput" class="form-control"
+                                   placeholder="e.g. CSE Fees 2026-27"
+                                   value="{{ prefill_topic }}" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">
+                                {% if prefill_topic %}
+                                    Answer / Information <span class="text-danger">*</span>
+                                    <span class="badge ms-2" style="background:#fef3c7; color:#92400e; font-size:0.72rem;">
+                                        <i class="fas fa-pencil-alt me-1"></i>Type the answer below
+                                    </span>
+                                {% else %}
+                                    Information (What the chatbot will say) <span class="text-danger">*</span>
+                                {% endif %}
+                            </label>
+                            <textarea name="information" id="informationInput" class="form-control" rows="4"
+                                placeholder="Type the detailed answer here. The chatbot will use this to reply to student questions..." required></textarea>
+                            {% if prefill_topic %}
+                            <small class="text-muted mt-1 d-block">
+                                <i class="fas fa-lightbulb me-1 text-warning"></i>
+                                Be as detailed as possible. The chatbot will quote this exactly.
+                            </small>
+                            {% endif %}
+                        </div>
+                        <div class="col-12 d-flex gap-2">
+                            <button type="submit" class="btn text-white px-4" style="background:#6f42c1;">
+                                <i class="fas fa-save me-2"></i>
+                                {% if prefill_query_id %}Save &amp; Auto-Resolve Query{% else %}Save Entry{% endif %}
+                            </button>
+                            {% if not prefill_topic %}
+                            <button type="button" class="btn btn-outline-secondary" data-bs-toggle="collapse" data-bs-target="#addEntryForm">
+                                Cancel
+                            </button>
+                            {% else %}
+                            <a href="/chatbot-unanswered/" class="btn btn-outline-secondary">
+                                Cancel — Back to Queries
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats bar -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="rounded-3 p-3 text-center" style="background:linear-gradient(135deg,#f5f0ff,#ede0ff); border:1.5px solid #d0b4f7;">
+                <div class="fw-bold fs-4" style="color:#6f42c1;">{{ entries|length }}</div>
+                <div class="text-muted small">Total Entries</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="rounded-3 p-3 text-center" style="background:linear-gradient(135deg,#f0fff4,#d4edda); border:1.5px solid #a8d5b5;">
+                <div class="fw-bold fs-4 text-success">{{ entries|length }}</div>
+                <div class="text-muted small">Active Entries</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="rounded-3 p-3 text-center" style="background:linear-gradient(135deg,#fff8f0,#ffe5cc); border:1.5px solid #f5c08a;">
+                <div class="fw-bold fs-4 text-warning">{{ categories|length }}</div>
+                <div class="text-muted small">Categories</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Knowledge Table -->
+    <div class="card shadow">
+        <div class="card-header text-white py-3" style="background:linear-gradient(135deg,#0d1642,#1a237e);">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-database me-2"></i>All Knowledge Entries</h5>
+                <span class="badge bg-light text-dark fs-6">{{ entries|length }} entr{{ entries|length|pluralize:"y,ies" }}</span>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            {% if entries %}
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Category</th>
+                            <th>Topic</th>
+                            <th>Information Preview</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for entry in entries %}
+                        <tr>
+                            <td class="text-muted">{{ forloop.counter }}</td>
+                            <td>
+                                <span class="badge rounded-pill" style="background:#ede0ff; color:#6f42c1; font-size:0.78rem;">
+                                    {{ entry.get_category_display }}
+                                </span>
+                            </td>
+                            <td class="fw-semibold">{{ entry.topic }}</td>
+                            <td class="text-muted small">
+                                {{ entry.information|truncatechars:80 }}
+                            </td>
+                            <td>
+                                {% if entry.is_active %}
+                                <span class="badge bg-success"><i class="fas fa-check me-1"></i>Active</span>
+                                {% else %}
+                                <span class="badge bg-secondary"><i class="fas fa-pause me-1"></i>Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="d-flex gap-1 flex-wrap">
+                                    <button class="btn btn-sm btn-outline-primary" title="Edit"
+                                        data-bs-toggle="modal" data-bs-target="#editModal{{ entry.id }}">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <form method="POST" action="/chatbot-knowledge/{{ entry.id }}/toggle/" style="display:inline;">
+                                        {% csrf_token %}
+                                        {% if entry.is_active %}
+                                        <button type="submit" class="btn btn-sm btn-outline-warning" title="Deactivate">
+                                            <i class="fas fa-pause"></i>
+                                        </button>
+                                        {% else %}
+                                        <button type="submit" class="btn btn-sm btn-outline-success" title="Activate">
+                                            <i class="fas fa-play"></i>
+                                        </button>
+                                        {% endif %}
+                                    </form>
+                                    <form method="POST" action="/chatbot-knowledge/{{ entry.id }}/delete/" style="display:inline;"
+                                        onsubmit="return confirm('Delete this knowledge entry? The chatbot will forget this information.');">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Edit Modal -->
+                        <div class="modal fade" id="editModal{{ entry.id }}" tabindex="-1">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header text-white" style="background:linear-gradient(135deg,#6f42c1,#4a2d8f);">
+                                        <h5 class="modal-title"><i class="fas fa-edit me-2"></i>Edit: {{ entry.topic }}</h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <form method="POST" action="/chatbot-knowledge/{{ entry.id }}/edit/">
+                                        {% csrf_token %}
+                                        <div class="modal-body p-4">
+                                            <div class="row g-3">
+                                                <div class="col-md-4">
+                                                    <label class="form-label fw-semibold">Category</label>
+                                                    <select name="category" class="form-select" required>
+                                                        {% for val, label in categories %}
+                                                        <option value="{{ val }}" {% if val == entry.category %}selected{% endif %}>{{ label }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-8">
+                                                    <label class="form-label fw-semibold">Topic</label>
+                                                    <input type="text" name="topic" class="form-control" value="{{ entry.topic }}" required>
+                                                </div>
+                                                <div class="col-12">
+                                                    <label class="form-label fw-semibold">Information</label>
+                                                    <textarea name="information" class="form-control" rows="5" required>{{ entry.information }}</textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <button type="submit" class="btn text-white" style="background:#6f42c1;">
+                                                <i class="fas fa-save me-1"></i>Save Changes
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-brain fa-3x mb-3" style="color:#d0b4f7;"></i>
+                <p class="text-muted">No knowledge entries yet. Add your first entry above!</p>
+                <button class="btn text-white" style="background:#6f42c1;" data-bs-toggle="collapse" data-bs-target="#addEntryForm">
+                    <i class="fas fa-plus me-2"></i>Add First Entry
+                </button>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Info Note -->
+    <div class="alert mt-4" style="background:#f5f0ff; border-left:4px solid #6f42c1;">
+        <i class="fas fa-lightbulb me-2" style="color:#6f42c1;"></i>
+        <strong>How it works:</strong> Every <strong>Active</strong> entry here is automatically used by the chatbot to answer student questions.
+        Add a new entry → the chatbot instantly knows it. Toggle <strong>Inactive</strong> to temporarily hide info without deleting it.
+    </div>
+
+</div>
+
+{% if prefill_topic %}
+<script>
+    // Auto-focus the information textarea so admin can start typing the answer immediately
+    document.addEventListener('DOMContentLoaded', function () {
+        var infoField = document.getElementById('informationInput');
+        if (infoField) {
+            setTimeout(function () {
+                infoField.focus();
+                infoField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 300);
+        }
+    });
+</script>
+{% endif %}
+
+{% endblock %}

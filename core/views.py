@@ -27,6 +27,8 @@ from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views.decorators.csrf import csrf_exempt
 
+from chatbot.models import CollegeKnowledge, UnansweredQuery, ChatFeedback
+
 from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -1486,3 +1488,153 @@ def admin_merit_list_pdf_delete(request, pdf_id):
     except MeritListPDF.DoesNotExist:
         messages.error(request, 'Merit List PDF not found.')
     return redirect('admin_merit_list_pdfs')
+
+
+# ─── Chatbot AI Management Pages ─────────────────────────────────────────────
+
+@staff_member_required(login_url='/login/')
+def chatbot_knowledge(request):
+    """Custom admin page to manage the chatbot knowledge base."""
+    entries = CollegeKnowledge.objects.all().order_by('category', 'topic')
+    categories = CollegeKnowledge.CATEGORY_CHOICES
+    # Pre-fill support: when coming from "Train Bot" on unanswered queries page
+    prefill_topic = request.GET.get('topic', '').strip()
+    prefill_query_id = request.GET.get('query_id', '').strip()
+    return render(request, 'chatbot_knowledge.html', {
+        'entries': entries,
+        'categories': categories,
+        'prefill_topic': prefill_topic,
+        'prefill_query_id': prefill_query_id,
+    })
+
+
+@staff_member_required(login_url='/login/')
+def chatbot_knowledge_add(request):
+    """Handle adding a new knowledge entry."""
+    if request.method == 'POST':
+        category = request.POST.get('category', '').strip()
+        topic = request.POST.get('topic', '').strip()
+        information = request.POST.get('information', '').strip()
+        query_id = request.POST.get('query_id', '').strip()
+        if category and topic and information:
+            CollegeKnowledge.objects.create(
+                category=category,
+                topic=topic,
+                information=information,
+                is_active=True,
+            )
+            messages.success(request, f'✅ Knowledge entry "{topic}" added! The chatbot will now answer this question.')
+            # Auto-resolve the linked unanswered query if query_id was passed
+            if query_id:
+                try:
+                    query = UnansweredQuery.objects.get(id=query_id)
+                    query.is_resolved = True
+                    query.resolution_note = f'Answered via knowledge entry: "{topic}"'
+                    query.save()
+                    messages.success(request, f'🎉 The unanswered query has been automatically marked as resolved!')
+                except UnansweredQuery.DoesNotExist:
+                    pass
+        else:
+            messages.error(request, 'Please fill in all fields.')
+    return redirect('chatbot_knowledge')
+
+
+@staff_member_required(login_url='/login/')
+def chatbot_knowledge_edit(request, entry_id):
+    """Handle editing an existing knowledge entry."""
+    try:
+        entry = CollegeKnowledge.objects.get(id=entry_id)
+    except CollegeKnowledge.DoesNotExist:
+        messages.error(request, 'Entry not found.')
+        return redirect('chatbot_knowledge')
+
+    if request.method == 'POST':
+        entry.category = request.POST.get('category', entry.category)
+        entry.topic = request.POST.get('topic', entry.topic).strip()
+        entry.information = request.POST.get('information', entry.information).strip()
+        entry.save()
+        messages.success(request, f'Entry "{entry.topic}" updated successfully!')
+    return redirect('chatbot_knowledge')
+
+
+@staff_member_required(login_url='/login/')
+def chatbot_knowledge_toggle(request, entry_id):
+    """Toggle active/inactive status of a knowledge entry."""
+    try:
+        entry = CollegeKnowledge.objects.get(id=entry_id)
+        entry.is_active = not entry.is_active
+        entry.save()
+        status = 'activated' if entry.is_active else 'deactivated'
+        messages.success(request, f'Entry "{entry.topic}" has been {status}.')
+    except CollegeKnowledge.DoesNotExist:
+        messages.error(request, 'Entry not found.')
+    return redirect('chatbot_knowledge')
+
+
+@staff_member_required(login_url='/login/')
+def chatbot_knowledge_delete(request, entry_id):
+    """Delete a knowledge entry."""
+    try:
+        entry = CollegeKnowledge.objects.get(id=entry_id)
+        topic = entry.topic
+        entry.delete()
+        messages.success(request, f'Entry "{topic}" deleted.')
+    except CollegeKnowledge.DoesNotExist:
+        messages.error(request, 'Entry not found.')
+    return redirect('chatbot_knowledge')
+
+
+@staff_member_required(login_url='/login/')
+def chatbot_unanswered(request):
+    """Custom admin page to view and resolve unanswered queries."""
+    queries = UnansweredQuery.objects.all().order_by('is_resolved', '-frequency', '-created_at')
+    unresolved_count = queries.filter(is_resolved=False).count()
+    return render(request, 'chatbot_unanswered.html', {
+        'queries': queries,
+        'unresolved_count': unresolved_count,
+    })
+
+
+@staff_member_required(login_url='/login/')
+def chatbot_unanswered_resolve(request, query_id):
+    """Mark an unanswered query as resolved with an optional note."""
+    try:
+        query = UnansweredQuery.objects.get(id=query_id)
+        query.is_resolved = True
+        query.resolution_note = request.POST.get('resolution_note', '').strip()
+        query.save()
+        messages.success(request, 'Query marked as resolved!')
+    except UnansweredQuery.DoesNotExist:
+        messages.error(request, 'Query not found.')
+    return redirect('chatbot_unanswered')
+
+
+@staff_member_required(login_url='/login/')
+def chatbot_unanswered_delete(request, query_id):
+    """Delete an unanswered query."""
+    try:
+        query = UnansweredQuery.objects.get(id=query_id)
+        query.delete()
+        messages.success(request, 'Query deleted.')
+    except UnansweredQuery.DoesNotExist:
+        messages.error(request, 'Query not found.')
+    return redirect('chatbot_unanswered')
+
+
+@staff_member_required(login_url='/login/')
+def chatbot_feedback(request):
+    """Custom admin page to view chatbot feedback and ratings."""
+    feedbacks = ChatFeedback.objects.select_related('message').order_by('-created_at')
+    total = feedbacks.count()
+    helpful = feedbacks.filter(rating=3).count()
+    somewhat = feedbacks.filter(rating=2).count()
+    not_helpful = feedbacks.filter(rating=1).count()
+    avg_rating = round(sum(f.rating for f in feedbacks) / total, 1) if total else 0
+    return render(request, 'chatbot_feedback.html', {
+        'feedbacks': feedbacks,
+        'total': total,
+        'helpful': helpful,
+        'somewhat': somewhat,
+        'not_helpful': not_helpful,
+        'avg_rating': avg_rating,
+    })

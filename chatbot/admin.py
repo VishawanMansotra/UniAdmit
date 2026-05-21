@@ -76,8 +76,8 @@ class UnansweredQueryAdmin(admin.ModelAdmin):
 
     def action_needed(self, obj):
         if not obj.is_resolved:
-            return format_html('<span style="color:red; font-weight:bold;">⚠️ Add to Knowledge Base</span>')
-        return format_html('<span style="color:green;">✅ Resolved</span>')
+            return format_html('<span style="color:red; font-weight:bold;">{}</span>', '⚠️ Add to Knowledge Base')
+        return format_html('<span style="color:green;">{}</span>', '✅ Resolved')
     action_needed.short_description = 'Action'
 
     actions = ['mark_resolved']

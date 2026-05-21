@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+{% block title %}Chatbot Feedback & Ratings{% endblock %}
+{% block content %}
+<div class="container my-5">
+
+    <!-- Header -->
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+        <div class="d-flex align-items-center">
+            <a href="/admin-dashboard/" class="btn btn-outline-secondary me-3">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <div>
+                <h3 class="mb-0 fw-bold" style="color:#0d9488;">
+                    <i class="fas fa-comments me-2"></i>Chatbot Feedback &amp; Ratings
+                </h3>
+                <small class="text-muted">See how students rate the chatbot's responses</small>
+            </div>
+        </div>
+        <div class="text-end">
+            <div class="fw-bold fs-4" style="color:#0d9488;">{{ avg_rating }}<span class="text-muted fs-6">/3</span></div>
+            <small class="text-muted">Average Rating</small>
+        </div>
+    </div>
+
+
+    <!-- Stats Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="rounded-3 p-3 text-center" style="background:linear-gradient(135deg,#f0fdfa,#ccfbf1); border:1.5px solid #99f6e4;">
+                <div class="fw-bold fs-3" style="color:#0d9488;">{{ total }}</div>
+                <div class="text-muted small">Total Ratings</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="rounded-3 p-3 text-center" style="background:linear-gradient(135deg,#f0fff4,#d4edda); border:1.5px solid #a8d5b5;">
+                <div class="fw-bold fs-3 text-success">{{ helpful }}</div>
+                <div class="text-muted small">👍 Very Helpful</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="rounded-3 p-3 text-center" style="background:linear-gradient(135deg,#fff8f0,#ffe5cc); border:1.5px solid #f5c08a;">
+                <div class="fw-bold fs-3 text-warning">{{ somewhat }}</div>
+                <div class="text-muted small">😐 Somewhat Helpful</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="rounded-3 p-3 text-center" style="background:linear-gradient(135deg,#fff5f5,#ffe0e0); border:1.5px solid #f5c0c0;">
+                <div class="fw-bold fs-3 text-danger">{{ not_helpful }}</div>
+                <div class="text-muted small">👎 Not Helpful</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress bars overview -->
+    {% if total > 0 %}
+    <div class="card shadow mb-4">
+        <div class="card-header text-white py-3" style="background:linear-gradient(135deg,#0d9488,#0a7a70);">
+            <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Rating Breakdown</h5>
+        </div>
+        <div class="card-body p-4">
+            <div class="mb-3">
+                <div class="d-flex justify-content-between mb-1">
+                    <span class="fw-semibold text-success">👍 Very Helpful</span>
+                    <span class="text-muted">{{ helpful }} / {{ total }}</span>
+                </div>
+                <div class="progress" style="height:12px; border-radius:10px;">
+                    <div class="progress-bar bg-success" style="width:{% if total %}{% widthratio helpful total 100 %}{% else %}0{% endif %}%; border-radius:10px;"></div>
+                </div>
+            </div>
+            <div class="mb-3">
+                <div class="d-flex justify-content-between mb-1">
+                    <span class="fw-semibold text-warning">😐 Somewhat Helpful</span>
+                    <span class="text-muted">{{ somewhat }} / {{ total }}</span>
+                </div>
+                <div class="progress" style="height:12px; border-radius:10px;">
+                    <div class="progress-bar bg-warning" style="width:{% if total %}{% widthratio somewhat total 100 %}{% else %}0{% endif %}%; border-radius:10px;"></div>
+                </div>
+            </div>
+            <div class="mb-0">
+                <div class="d-flex justify-content-between mb-1">
+                    <span class="fw-semibold text-danger">👎 Not Helpful</span>
+                    <span class="text-muted">{{ not_helpful }} / {{ total }}</span>
+                </div>
+                <div class="progress" style="height:12px; border-radius:10px;">
+                    <div class="progress-bar bg-danger" style="width:{% if total %}{% widthratio not_helpful total 100 %}{% else %}0{% endif %}%; border-radius:10px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Feedback Table -->
+    <div class="card shadow">
+        <div class="card-header text-white py-3" style="background:linear-gradient(135deg,#0d1642,#1a237e);">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-list me-2"></i>All Feedback Entries</h5>
+                <span class="badge bg-light text-dark fs-6">{{ total }} rating{{ total|pluralize }}</span>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            {% if feedbacks %}
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Bot's Response (rated)</th>
+                            <th>Rating</th>
+                            <th>Student Comment</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for fb in feedbacks %}
+                        <tr>
+                            <td class="text-muted">{{ forloop.counter }}</td>
+                            <td class="text-muted small" style="max-width:300px;">
+                                {{ fb.message.message|truncatechars:100 }}
+                            </td>
+                            <td>
+                                {% if fb.rating == 3 %}
+                                <span class="badge bg-success px-3 py-2">👍 Very Helpful</span>
+                                {% elif fb.rating == 2 %}
+                                <span class="badge bg-warning text-dark px-3 py-2">😐 Somewhat</span>
+                                {% else %}
+                                <span class="badge bg-danger px-3 py-2">👎 Not Helpful</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if fb.comment %}
+                                <span class="text-dark">{{ fb.comment|truncatechars:60 }}</span>
+                                {% else %}
+                                <span class="text-muted fst-italic">No comment</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-muted small">{{ fb.created_at|date:"d M Y" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-comments fa-3x mb-3" style="color:#99f6e4;"></i>
+                <p class="text-muted">No feedback received yet. Students can rate chatbot responses using 👍/👎 buttons.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Info -->
+    <div class="alert mt-4" style="background:#f0fdfa; border-left:4px solid #0d9488;">
+        <i class="fas fa-info-circle me-2" style="color:#0d9488;"></i>
+        <strong>Tip:</strong> Check <strong>Not Helpful (👎)</strong> ratings regularly.
+        If the chatbot gives wrong or incomplete answers, go to
+        <a href="/chatbot-knowledge/" style="color:#6f42c1; font-weight:600;">Train Chatbot</a>
+        and update or add the relevant knowledge entry.
+    </div>
+
+</div>
+{% endblock %}
