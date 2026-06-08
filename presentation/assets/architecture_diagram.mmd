@@ -1,0 +1,14 @@
+flowchart LR
+    U[Student/Admin Browser] --> DJ[Django Project: admission]
+    DJ --> CORE[core app\nViews + Forms + Models]
+    DJ --> CHAT[chatbot app\nAPI + Prompt Utilities + Models]
+
+    CORE --> DB[(Database)]
+    CHAT --> DB
+
+    CORE --> RP[Razorpay API]
+    CHAT --> GA[Gemini API]
+    CORE --> PDF[ReportLab PDF Output]
+
+    PDF --> U
+    DJ --> U

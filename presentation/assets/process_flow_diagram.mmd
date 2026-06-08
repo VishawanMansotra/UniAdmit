@@ -1,0 +1,18 @@
+flowchart TD
+    A[Student Registration] --> B[OTP Verification]
+    B --> C[Login + Profile]
+    C --> D[Application Submission]
+    D --> E[Payment Initiation]
+    E --> F[Payment Verification]
+    F --> G[Application Status Tracking]
+
+    H[Admin Login] --> I[Application Review]
+    I --> J[Set Admission Round]
+    J --> K[Publish Merit PDFs / Export CSV]
+
+    L[User Query to Chatbot] --> M[Knowledge Base Retrieval]
+    M --> N[Gemini Response]
+    N --> O[Feedback Capture]
+    N --> P{Unanswered?}
+    P -- Yes --> Q[Store in UnansweredQuery]
+    P -- No --> R[Session Continues]
