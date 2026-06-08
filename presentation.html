@@ -1,0 +1,231 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>UniAdmit - Final Year Presentation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reset.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/theme/black.css" id="theme">
+    <style>
+        .reveal h1, .reveal h2, .reveal h3, .reveal h4, .reveal h5, .reveal h6 { text-transform: none; }
+        .reveal section img { background:none; border:none; box-shadow:none; }
+        .reveal table { font-size: 0.6em; }
+        .highlight { color: #42affa; }
+    </style>
+</head>
+<body>
+    <div class="reveal">
+        <div class="slides">
+
+            <!-- Title Slide -->
+            <section>
+                <h2><span class="highlight">UniAdmit</span></h2>
+                <h3>Smart Undergraduate Admission Management System</h3>
+                <p>
+                    <small>Final Year Project Presentation</small>
+                </p>
+                <aside class="notes">
+                    Good morning/afternoon. I am presenting UniAdmit, an undergraduate final-year project designed to automate and modernize the admission process.
+                </aside>
+            </section>
+
+            <!-- Problem Statement -->
+            <section>
+                <section>
+                    <h2>Problem Statement & Motivation</h2>
+                    <ul>
+                        <li>Traditional admission process is fragmented, manual, and slow</li>
+                        <li>Difficult tracking for students and admin</li>
+                        <li>Need for centralized, transparent, and guided workflow</li>
+                    </ul>
+                    <aside class="notes">
+                        Traditional admissions rely on manual coordination, disconnected updates, and repetitive communication. Students struggle to know what to do next, and administrators handle high operational overhead.
+                    </aside>
+                </section>
+                <section>
+                    <h2>Objectives & Scope</h2>
+                    <ul>
+                        <li>Digitize end-to-end admission workflow</li>
+                        <li>Role-based experience for students and administrators</li>
+                        <li>Add AI support for common admission queries</li>
+                        <li style="color: #ff5555;">Out of scope: multi-college federation, mobile-native app</li>
+                    </ul>
+                    <aside class="notes">
+                        Our objective was to create a practical platform that supports: Guided student onboarding, administrative control, and AI-assisted query support.
+                    </aside>
+                </section>
+            </section>
+
+            <!-- Feature Comparison -->
+            <section>
+                <h2>Manual vs UniAdmit</h2>
+                <table>
+                    <thead>
+                        <tr><th>Area</th><th>Manual/Legacy Process</th><th>UniAdmit Portal</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Registration</td><td>Paper/fragmented forms</td><td>OTP-verified digital onboarding</td></tr>
+                        <tr><td>Form Submission</td><td>Physical and repetitive</td><td>Single online application flow</td></tr>
+                        <tr><td>Status Visibility</td><td>Delayed/manual updates</td><td>Student dashboard status tracking</td></tr>
+                        <tr><td>Round Management</td><td>Circular/manual tracking</td><td>Controlled via admission-round admin panel</td></tr>
+                        <tr><td>Query Support</td><td>Office-dependent</td><td>AI chatbot + unresolved query queue</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Architecture & Tech Stack -->
+            <section>
+                <section>
+                    <h2>System Overview & Roles</h2>
+                    <ul>
+                        <li><strong>Student:</strong> register, verify OTP, apply, pay, track status</li>
+                        <li><strong>Admin:</strong> review applications, control rounds, publish merit PDFs</li>
+                        <li><strong>AI Assistant:</strong> answers FAQs, captures unresolved questions</li>
+                    </ul>
+                </section>
+                <section>
+                    <h2>Technology Stack</h2>
+                    <ul>
+                        <li>Backend: <span class="highlight">Django (Python)</span></li>
+                        <li>Database: MySQL (via `dj-database-url`)</li>
+                        <li>Payments: Razorpay integration</li>
+                        <li>AI: Google Gemini (`google-generativeai`)</li>
+                        <li>PDF generation: ReportLab</li>
+                        <li>Frontend: Django templates + Bootstrap</li>
+                    </ul>
+                </section>
+                <section>
+                    <h2>High-Level Architecture</h2>
+                    <ul>
+                        <li>Django project with two apps: <code>core</code>, <code>chatbot</code></li>
+                        <li>Request flow: Browser → Django Views → Models/DB → Services</li>
+                        <li>Data Model Focus: student-to-application, application-to-payment, chatbot session-to-messages</li>
+                    </ul>
+                    <aside class="notes">
+                        UniAdmit is built on Django. The core app handles admissions logic, and the chatbot app handles AI interactions. Data is persisted in relational models, with optional external integrations for payments and AI responses.
+                    </aside>
+                </section>
+                <section>
+                    <h2>Factual Data Points</h2>
+                    <ul>
+                        <li>Main apps: <code>core</code>, <code>chatbot</code></li>
+                        <li>Major models: 6 in core, 5 in chatbot</li>
+                        <li>Default seats per course: 60</li>
+                        <li>OTP validity: 300 seconds</li>
+                        <li>Admission round states: closed, round1_jee, round2_cuet, round3_board</li>
+                    </ul>
+                </section>
+            </section>
+
+            <!-- Student Flow -->
+            <section>
+                <h2>Student Journey</h2>
+                <ol>
+                    <li>Home → Register → Verify OTP → Login → Dashboard</li>
+                    <li>Profile update → Apply (details + documents) → Payment</li>
+                    <li>My Applications / Status tracking</li>
+                </ol>
+                <aside class="notes">
+                    Students register, verify OTP, and log in. From dashboard, they can edit profile and submit applications. Payment is initiated and verified. Students can later monitor status.
+                </aside>
+            </section>
+
+            <!-- Admin Flow -->
+            <section>
+                <h2>Admin Journey</h2>
+                <ol>
+                    <li>Admin login → Admin dashboard</li>
+                    <li>View/filter applications + application detail review</li>
+                    <li>Set active admission round</li>
+                    <li>Upload/publish merit PDFs and export CSV</li>
+                </ol>
+                <aside class="notes">
+                    Admins use dedicated dashboard actions to review applications, control active admission round, publish merit PDFs, and export CSV data.
+                </aside>
+            </section>
+
+            <!-- Chatbot Design -->
+            <section>
+                <h2>AI Chatbot Design</h2>
+                <ul>
+                    <li>Knowledge source: active entries in <code>CollegeKnowledge</code></li>
+                    <li>Prompting with behavior constraints</li>
+                    <li>Session + message history for continuity</li>
+                    <li>Quality loop: <code>UnansweredQuery</code> + <code>ChatFeedback</code></li>
+                </ul>
+                <aside class="notes">
+                    The chatbot relies on managed knowledge entries. It maintains session context and provides concise responses. Unhandled questions go to a queue, and feedback creates a quality loop.
+                </aside>
+            </section>
+
+            <!-- Security & Outcomes -->
+            <section>
+                <section>
+                    <h2>Security & Validation Controls</h2>
+                    <ul>
+                        <li>OTP validity window (5 minutes)</li>
+                        <li>Allowed registration email domain checks</li>
+                        <li>Auth-protected dashboard/admin routes</li>
+                        <li>Payment verification before confirmation workflows</li>
+                    </ul>
+                </section>
+                <section>
+                    <h2>Methodology & Testing</h2>
+                    <ul>
+                        <li>Requirements analysis → design → implementation → testing</li>
+                        <li>Verified test run: <code>python manage.py test</code> passed (21 tests)</li>
+                        <li>Validation through student/admin/chatbot walkthroughs</li>
+                    </ul>
+                </section>
+                <section>
+                    <h2>Outcomes & Benefits</h2>
+                    <ul>
+                        <li>Centralized admission lifecycle</li>
+                        <li>Faster processing and improved transparency</li>
+                        <li>Better applicant support via integrated chatbot</li>
+                        <li>Structured admin controls for rounds/results</li>
+                    </ul>
+                </section>
+            </section>
+
+            <!-- Live Demo Plan -->
+            <section>
+                <h2>Live Demo Plan</h2>
+                <ol>
+                    <li>Home overview and value proposition</li>
+                    <li>Student login/dashboard and profile context</li>
+                    <li>Application & Payment Flow</li>
+                    <li>Admin dashboard + round control</li>
+                    <li>Chatbot query & feedback cycle</li>
+                </ol>
+            </section>
+
+            <!-- Conclusion & Q&A -->
+            <section>
+                <h2>Conclusion & Q&A</h2>
+                <p>UniAdmit is a practical, extensible admission automation platform.</p>
+                <br>
+                <h3>Backup / Viva Cheatsheet</h3>
+                <ul style="font-size: 0.6em;">
+                    <li><strong>Architecture:</strong> Split into core & chatbot for separation of concerns.</li>
+                    <li><strong>Admissions logic:</strong> AdmissionRound controls active phase.</li>
+                    <li><strong>Payment:</strong> Payment initiation stores references, verification updates status.</li>
+                    <li><strong>Chatbot quality:</strong> Grounded by CollegeKnowledge DB, tracks unhandled queries.</li>
+                </ul>
+            </section>
+
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            slideNumber: true,
+            showNotes: false,
+            transition: 'slide'
+        });
+    </script>
+</body>
+</html>
